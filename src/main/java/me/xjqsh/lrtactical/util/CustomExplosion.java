@@ -45,6 +45,7 @@ public class CustomExplosion extends Explosion {
     private float damageMultiplier;
     private double screenShakeTime = 20;
     private double screenShakeAmplitude = 50;
+    private float destroyMultiplier = 1.0f;
 
     public CustomExplosion(Level pLevel, @Nullable Entity pSource, @Nullable DamageSource source, @Nullable ExplosionDamageCalculator pDamageCalculator,
                            double damage, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius,
@@ -73,6 +74,10 @@ public class CustomExplosion extends Explosion {
     public CustomExplosion setDamageMultiplier(float damageMultiplier) {
         this.damageMultiplier = damageMultiplier;
         return this;
+    }
+
+    public void setDestroyMultiplier(float destroyMultiplier) {
+        this.destroyMultiplier = destroyMultiplier;
     }
 
     public void setScreenShakeTime(double screenShakeTime) {
@@ -105,7 +110,7 @@ public class CustomExplosion extends Explosion {
                         d0 /= d3;
                         d1 /= d3;
                         d2 /= d3;
-                        float f = this.radius * (0.4F + this.level.random.nextFloat() * 0.3F);
+                        float f = this.radius * (0.4F + this.level.random.nextFloat() * 0.3F) * destroyMultiplier;
                         double d4 = this.x;
                         double d6 = this.y;
                         double d8 = this.z;

@@ -2,18 +2,18 @@ package me.xjqsh.lrtactical.item;
 
 import com.tacz.guns.api.item.IAnimationItem;
 import com.tacz.guns.client.renderer.item.AnimateGeoItemRenderer;
-import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.item.IThrowable;
 import me.xjqsh.lrtactical.capability.CustomItemCoolDowns;
 import me.xjqsh.lrtactical.client.renderer.item.ThrowableItemRendererWrapper;
 import me.xjqsh.lrtactical.init.ModCapabilities;
+import me.xjqsh.lrtactical.init.ModItems;
 import me.xjqsh.lrtactical.item.index.ThrowableIndex;
 import me.xjqsh.lrtactical.item.throwable.area.EffectCloudThrowableData;
+import me.xjqsh.lrtactical.item.throwable.explode.ExplodeThrowableData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -110,10 +110,21 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
 
         ResourceLocation id = index.getData().getCooldownCategory();
         if (id != null) {
-            CustomItemCoolDowns cap = entity.getData(ModCapabilities.CUSTOM_COOLDOWN);
-            cap.addCooldown(id, index.getData().getCooldown());
+            if (entity instanceof Player player) {
+                CustomItemCoolDowns cap = player.getData(ModCapabilities.CUSTOM_COOLDOWN);
+                cap.addCooldown(id, index.getData().getCooldown());
+            }
         }
         stack.shrink(1);
+
+        if (index.getData() instanceof ExplodeThrowableData explode && explode.getExplode().isRemoteDetonation()) {
+            ItemStack detonatorStack = new ItemStack(ModItems.DETONATOR.get());
+            if (detonatorStack.getItem() instanceof DetonatorItem detonatorItem) {
+                detonatorItem.recordEntity(throwable, detonatorStack);
+            }
+            entity.setItemInHand(InteractionHand.MAIN_HAND, detonatorStack);
+        }
+
     }
 
 
