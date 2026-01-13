@@ -2,7 +2,9 @@ package me.xjqsh.lrtactical.item;
 
 import me.xjqsh.lrtactical.entity.GrenadeEntity;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -11,6 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 import java.util.UUID;
@@ -22,12 +25,17 @@ public class DetonatorItem extends Item {
 
     public void recordEntity(Entity entity, ItemStack detonatorStack) {
         UUID entityId = entity.getUUID();
-        detonatorStack.getOrCreateTag().putUUID("linked_entity", entityId);
+        CustomData.update(DataComponents.CUSTOM_DATA, detonatorStack, nbt -> nbt.putUUID("linked_entity", entityId));
     }
 
     public UUID getLinkedEntityId(ItemStack detonatorStack) {
-        if (detonatorStack.hasTag() && detonatorStack.getTag().hasUUID("linked_entity")) {
-            return detonatorStack.getTag().getUUID("linked_entity");
+        CustomData customData = detonatorStack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return null;
+        }
+        CompoundTag nbt = customData.copyTag();
+        if (nbt.hasUUID("linked_entity")) {
+            return nbt.getUUID("linked_entity");
         }
         return null;
     }

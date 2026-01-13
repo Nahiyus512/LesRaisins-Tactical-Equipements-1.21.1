@@ -156,13 +156,13 @@ public class StickyGrenadeEntity extends GrenadeEntity {
     }
 
     @Override
-    public void lerpTo(double pX, double pY, double pZ, float pYRot, float pXRot, int pPosRotationIncrements, boolean pTeleport) {
+    public void lerpTo(double pX, double pY, double pZ, float pYRot, float pXRot, int pPosRotationIncrements) {
         if (this.entityData.get(STICKED) && this.entityData.get(STUCK_ENTITY_ID) != -1) {
             // Ignore server position updates when stuck to an entity to prevent jitter
             // We still accept rotation updates if needed, or completely ignore
             return;
         }
-        super.lerpTo(pX, pY, pZ, pYRot, pXRot, pPosRotationIncrements, pTeleport);
+        super.lerpTo(pX, pY, pZ, pYRot, pXRot, pPosRotationIncrements);
     }
 
     private void detach() {
