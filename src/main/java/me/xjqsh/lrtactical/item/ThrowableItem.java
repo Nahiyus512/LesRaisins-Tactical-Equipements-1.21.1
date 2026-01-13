@@ -49,6 +49,7 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
     }
 
     @Override
+    @SuppressWarnings("removal")
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
         return true;
     }
@@ -57,21 +58,6 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
     @Override
     public UseAnim getUseAnimation(@NotNull ItemStack pStack) {
         return UseAnim.BOW;
-    }
-
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
-            private ThrowableItemRendererWrapper renderer = null;
-
-            @Override
-            public ThrowableItemRendererWrapper getCustomRenderer() {
-                if (this.renderer == null) {
-                    renderer = new ThrowableItemRendererWrapper();
-                }
-                return renderer;
-            }
-        });
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -135,7 +121,6 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
             var data = index.getData();
             if (data.isCookable() && entity.getTicksUsingItem() >= data.getPrepareTime() + data.getEntityData().getLifeTime()) {
                 if (!world.isClientSide()) {
-                    onThrow(world, entity, stack, index);
                     entity.stopUsingItem();
                 }
             }

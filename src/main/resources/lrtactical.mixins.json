@@ -10,7 +10,6 @@
     "common.PlayerMixin"
   ],
   "client": [
-    "client.GameRendererMixin",
     "client.GunSmithTableScreenMixin", "client.PlayerModelMixin"
   ],
   "injectors": {

@@ -50,21 +50,6 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
     }
 
     @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
-            private MeleeItemRenderer renderer = null;
-
-            @Override
-            public MeleeItemRenderer getCustomRenderer() {
-                if (this.renderer == null) {
-                    renderer = new MeleeItemRenderer();
-                }
-                return renderer;
-            }
-        });
-    }
-
-    @Override
     public boolean isEnchantable(@NotNull ItemStack pStack) {
         ensureEnchantableComponent(pStack);
         return true;

@@ -63,14 +63,30 @@ public class LrInteractKey {
         BlockPos blockPos = blockHitResult.getBlockPos();
         BlockState block = player.level().getBlockState(blockPos);
         if (InteractKeyConfigRead.canInteractBlock(block)) {
-            // mc.startUseItem();
+             startUseItem(mc);
         }
     }
 
     private static void interactEntity(EntityHitResult entityHitResult, Minecraft mc) {
         Entity entity = entityHitResult.getEntity();
         if (InteractKeyConfigRead.canInteractEntity(entity)) {
-            // mc.startUseItem();
+             startUseItem(mc);
+        }
+    }
+
+    private static void startUseItem(Minecraft mc) {
+        try {
+            java.lang.reflect.Method method = Minecraft.class.getDeclaredMethod("startUseItem");
+            method.setAccessible(true);
+            method.invoke(mc);
+        } catch (Exception e) {
+            try {
+                java.lang.reflect.Method method = Minecraft.class.getDeclaredMethod("m_91277_");
+                method.setAccessible(true);
+                method.invoke(mc);
+            } catch (Exception ex) {
+                // Ignore if both fail, or log debug
+            }
         }
     }
 }

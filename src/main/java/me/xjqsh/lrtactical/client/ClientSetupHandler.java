@@ -4,6 +4,7 @@ import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.client.audio.SoundHandler;
 import me.xjqsh.lrtactical.client.gui.overlay.InteractKeyTextOverlay;
 import me.xjqsh.lrtactical.client.input.AttackKeys;
+import me.xjqsh.lrtactical.client.overlay.BlindnessOverlay;
 import me.xjqsh.lrtactical.client.overlay.UsingProgressOverlay;
 import me.xjqsh.lrtactical.client.particle.SmokeCloudParticle;
 import me.xjqsh.lrtactical.client.renderer.CoolDownDecorations;
@@ -65,6 +66,7 @@ public class ClientSetupHandler {
     public static void onRegisterGuiOverlays(RegisterGuiLayersEvent event) {
         // 注册 HUD
         event.registerAbove(ResourceLocation.withDefaultNamespace("crosshair"), ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "lrt_interact_key_overlay"), new InteractKeyTextOverlay()::render);
+        event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "lrt_blindness_overlay"), new BlindnessOverlay()::render);
     }
 }
 

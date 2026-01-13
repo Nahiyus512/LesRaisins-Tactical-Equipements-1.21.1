@@ -55,26 +55,6 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
     }
 
     @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
-            private final FlashShieldItemRenderer renderer = new FlashShieldItemRenderer();
-
-            @Override
-            public FlashShieldItemRenderer getCustomRenderer() {
-                return renderer;
-            }
-
-            @Override
-            public HumanoidModel.ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {
-                if (hand == InteractionHand.OFF_HAND) {
-                    return HumanoidModel.ArmPose.EMPTY;
-                }
-                return HumanoidModel.ArmPose.CROSSBOW_HOLD;
-            }
-        });
-    }
-
-    @Override
     public int getDrawTime(ItemStack stack) {
         return 10;
     }

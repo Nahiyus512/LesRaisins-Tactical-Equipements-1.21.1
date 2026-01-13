@@ -148,36 +148,7 @@ public class ClientEventsHandler {
     }
 
 
-    public static void afterLevel(float pPartialTicks, long pNanoTime, boolean pRenderLevel) {
-        Minecraft mc = Minecraft.getInstance();
-        Player player = mc.player;
-        if (!pRenderLevel || mc.level == null || player == null) {
-            return;
-        }
-        MobEffectInstance effect = player.getEffect(ModEffects.BLIND);
-        if (effect == null) {
-            return;
-        }
 
-        int tickRemain = effect.getDuration();
-
-        int alpha = tickRemain > 100 ? 255 : (int) (tickRemain / 100f * 255f);
-        int color = (ClientConfig.BLACK_FLASH.get() ? 0x000000 : 0xFFFFFF) + (alpha << 24);
-
-        GuiGraphics graphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
-        int width = mc.getWindow().getGuiScaledWidth();
-        int height = mc.getWindow().getGuiScaledHeight();
-
-        RenderSystem.disableDepthTest();
-        RenderSystem.depthMask(false);
-        RenderSystem.enableBlend();
-
-        graphics.fill(0, 0, width, height, color);
-
-        RenderSystem.disableBlend();
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-    }
 
     @SubscribeEvent
     public static void onClickInput(InputEvent.InteractionKeyMappingTriggered event) {

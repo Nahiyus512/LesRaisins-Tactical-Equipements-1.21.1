@@ -3,6 +3,7 @@
   "name": "item.lrtactical.flash_grenade",
   "data": {
     "prepare_time": 16,
+    "cookable": true,
     "initial_speed": 1.1,
     "cooldown": 40,
     "cooldown_category": "lrtactical:stun",

@@ -77,6 +77,7 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityW
 
     public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
+        pCompound.putInt("Life", this.life);
         ItemStack itemstack = this.getItemRaw();
         if (!itemstack.isEmpty()) {
             pCompound.put("Item", itemstack.save(this.registryAccess(), new CompoundTag()));
@@ -86,6 +87,9 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityW
 
     public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
+        if (pCompound.contains("Life")) {
+            this.life = pCompound.getInt("Life");
+        }
         ItemStack itemstack = ItemStack.parse(this.registryAccess(), pCompound.getCompound("Item")).orElse(ItemStack.EMPTY);
         this.setItem(itemstack);
     }
@@ -113,9 +117,11 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityW
     public void onSyncedDataUpdated(EntityDataAccessor<?> pKey) {
         if (DATA_ITEM_STACK.equals(pKey)) {
             ItemStack pStack = this.getItemRaw();
+            /*
             if (!pStack.is(this.getDefaultItem()) || pStack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
                 this.life = 200;
             }
+             */
         }
     }
 
@@ -223,7 +229,7 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityW
             case X -> deltaMovement.multiply(-factor/1.5, factor, factor);
             case Y -> {
                 Vec3 newVec = deltaMovement.multiply(factor, -factor/2.5, factor);
-                if (newVec.y() < this.getGravity()) {
+                if (newVec.y() < this.getThrowableGravity()) {
                     newVec = newVec.multiply(1, 0, 1);
                 }
                 yield newVec;
@@ -301,12 +307,12 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityW
         this.setDeltaMovement(vec3.scale(f));
         if (!this.isNoGravity()) {
             Vec3 vec31 = this.getDeltaMovement();
-            this.setDeltaMovement(vec31.x, vec31.y - (double)this.getGravity(), vec31.z);
+            this.setDeltaMovement(vec31.x, vec31.y - (double)this.getThrowableGravity(), vec31.z);
         }
 
         this.setPos(x, y, z);
 
-        if (this.tickCount >= life && life > 0) {
+        if (this.tickCount >= life && life >= 0) {
             if (!this.level().isClientSide()) {
                 this.onDeath(null);
             }
