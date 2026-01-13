@@ -15,7 +15,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -41,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.lang.reflect.Method;
 
 public interface IMeleeWeapon extends ICustomItem {
     String ID_TAG = "MeleeWeaponId";
@@ -155,14 +158,6 @@ public interface IMeleeWeapon extends ICustomItem {
         if (target.skipAttackInteraction(attacker)) return AttackResult.MISS;
 
         float modifier = 0.0f;
-        // TODO: 1.21 Enchantment damage calculation
-        /*
-        if (target instanceof LivingEntity living) {
-            modifier = EnchantmentHelper.getDamageBonus(stack, living.getMobType());
-        } else {
-            modifier = EnchantmentHelper.getDamageBonus(stack, MobType.UNDEFINED);
-        }
-        */
 
         boolean flag2 = attacker.fallDistance > 0.0F && !attacker.onGround() && !attacker.onClimbable() && !attacker.isInWater()
                 && !attacker.hasEffect(MobEffects.BLINDNESS) && !attacker.isPassenger() && target instanceof LivingEntity;
@@ -172,6 +167,10 @@ public interface IMeleeWeapon extends ICustomItem {
         if (hitResult != null) {
             base *= hitResult.getDamageMultiplier();
             flag2 = true;
+        }
+
+        if (attacker.level() instanceof ServerLevel serverLevel) {
+            base = tryModifyDamageByEnchantments(serverLevel, stack, target, attacker.damageSources().playerAttack(attacker), base);
         }
 
         int j = EnchantmentHelper.getEnchantmentLevel(attacker.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.FIRE_ASPECT), attacker);
@@ -195,6 +194,10 @@ public interface IMeleeWeapon extends ICustomItem {
             living.knockback(knockback, Mth.sin(attacker.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(attacker.getYRot() * ((float)Math.PI / 180F)));
             if (attacker.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                 EnchantmentHelper.doPostAttackEffects(serverLevel, living, attacker.damageSources().playerAttack(attacker));
+                int count = (int) (Math.max(0, base) * 0.5);
+                if (count > 0) {
+                    serverLevel.sendParticles(ParticleTypes.DAMAGE_INDICATOR, living.getX(), living.getY(0.5), living.getZ(), count, 0.1, 0, 0.1, 0.2);
+                }
             }
         }
         
@@ -205,6 +208,18 @@ public interface IMeleeWeapon extends ICustomItem {
         }
 
         return flag2 ? AttackResult.CRIT : AttackResult.HIT;
+    }
+
+    private static float tryModifyDamageByEnchantments(ServerLevel serverLevel, ItemStack stack, Entity target, net.minecraft.world.damagesource.DamageSource source, float baseDamage) {
+        try {
+            Method method = EnchantmentHelper.class.getDeclaredMethod("modifyDamage", ServerLevel.class, ItemStack.class, Entity.class, net.minecraft.world.damagesource.DamageSource.class, float.class);
+            Object result = method.invoke(null, serverLevel, stack, target, source, baseDamage);
+            if (result instanceof Float f) {
+                return f;
+            }
+        } catch (ReflectiveOperationException ignored) {
+        }
+        return baseDamage;
     }
 
     static void playMeleeSound(Player entity, ResourceLocation id, String key, float volume, float pitch) {

@@ -32,6 +32,7 @@ public class CombatProperties {
     private int lastSelected = 0;
     private int drawingTick = 0;
     private boolean preparingAttack = false;
+    private int preparingWindowTick = 0;
 
     public CombatProperties(Player entity) {
         this.entity = entity;
@@ -70,7 +71,11 @@ public class CombatProperties {
             if (entity.getMainHandItem().getItem() instanceof IMeleeWeapon weapon && !weapon.canSprintingAttack()) {
                 entity.setSprinting(false);
             }
-            if (coolDownTick <= 0) {
+        }
+
+        if (preparingWindowTick > 0) {
+            preparingWindowTick--;
+            if (preparingWindowTick <= 0) {
                 preparingAttack = false;
             }
         }
@@ -103,6 +108,7 @@ public class CombatProperties {
         lastMaxTick = newCoolDown;
         drawingTick = newCoolDown;
         preparingAttack = false;
+        preparingWindowTick = 0;
     }
 
     public boolean preAttack(MeleeAction action, Vec3 origin, Vec3 direction) {
@@ -118,6 +124,7 @@ public class CombatProperties {
             if (!entity.level().isClientSide()) {
                 // 服务端，准备进行攻击
                 this.preparingAttack = true;
+                this.preparingWindowTick = Math.max(5, weapon.getAttackDelay(entity, stack, action) + 10);
                 // 服务器宽限1tick以平衡延迟
                 this.coolDownTick = Math.max(0, coolDownTick - 1);
             } else {

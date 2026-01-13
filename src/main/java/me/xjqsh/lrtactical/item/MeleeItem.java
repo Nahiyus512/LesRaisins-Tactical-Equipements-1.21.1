@@ -20,7 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 // import net.neoforged.neoforge.common.ToolAction;
@@ -67,12 +66,17 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
 
     @Override
     public boolean isEnchantable(@NotNull ItemStack pStack) {
+        ensureEnchantableComponent(pStack);
         return true;
     }
 
     @Override
     public int getEnchantmentValue(ItemStack stack) {
-        return 5;
+        int value = getMeleeIndex(stack).map(index -> index.getData().getEnchantmentValue()).orElse(0);
+        if (value > 0) {
+            MeleeWeaponIndex.trySetEnchantableComponent(stack, value);
+        }
+        return value;
     }
 
     @NotNull
@@ -153,7 +157,6 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
 
     @Override
     public void attack(Player attacker, ItemStack stack, MeleeAction action, List<Entity> targets) {
-        float base = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         this.getMeleeIndex(stack).ifPresent(index -> {
             CombatData combatData = index.getData().getAttackInfo();
             if (combatData == null) {
@@ -166,8 +169,36 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
             ITargetFilter filter = attackInfo.getHitbox();
             IMeleeWeapon.playMeleeSound(attacker, index.getId(), action.getId(), 2, 1, true);
 
-            float damage = base * attackInfo.getFactor();
-            float knockback = attackInfo.getKnockback();
+            double baseDamage = attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            var damageModifiers = index.getDefaultModifiers().get(Attributes.ATTACK_DAMAGE.value());
+            if (damageModifiers != null && !damageModifiers.isEmpty()) {
+                double value = baseDamage;
+                for (AttributeModifier modifier : damageModifiers) {
+                    value += switch (modifier.operation()) {
+                        case ADD_VALUE -> modifier.amount();
+                        case ADD_MULTIPLIED_BASE -> baseDamage * modifier.amount();
+                        case ADD_MULTIPLIED_TOTAL -> value * modifier.amount();
+                    };
+                }
+                baseDamage = value;
+            }
+
+            double baseKnockback = attacker.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+            var knockbackModifiers = index.getDefaultModifiers().get(Attributes.ATTACK_KNOCKBACK.value());
+            if (knockbackModifiers != null && !knockbackModifiers.isEmpty()) {
+                double value = baseKnockback;
+                for (AttributeModifier modifier : knockbackModifiers) {
+                    value += switch (modifier.operation()) {
+                        case ADD_VALUE -> modifier.amount();
+                        case ADD_MULTIPLIED_BASE -> baseKnockback * modifier.amount();
+                        case ADD_MULTIPLIED_TOTAL -> value * modifier.amount();
+                    };
+                }
+                baseKnockback = value;
+            }
+
+            float damage = (float) (baseDamage * attackInfo.getFactor());
+            float knockback = (float) (baseKnockback + attackInfo.getKnockback());
 
             if (damage <= 0) return;
             boolean hit = false;
@@ -190,6 +221,13 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
                 IMeleeWeapon.playMeleeSound(attacker, index.getId(), crit ? "crit" : action.getId() + "_hit", 2, 1);
             }
         });
+    }
+
+    private void ensureEnchantableComponent(ItemStack stack) {
+        int value = getMeleeIndex(stack).map(index -> index.getData().getEnchantmentValue()).orElse(0);
+        if (value > 0) {
+            MeleeWeaponIndex.trySetEnchantableComponent(stack, value);
+        }
     }
 
     // @Override

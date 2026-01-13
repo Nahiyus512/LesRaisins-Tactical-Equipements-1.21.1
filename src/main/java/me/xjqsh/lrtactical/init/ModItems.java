@@ -60,7 +60,7 @@ public class ModItems {
         if (iMeleeWeapon != null) {
             iMeleeWeapon.setId(stack, ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "karambit"));
         }
-        return stack;
+        return LrTacticalAPI.getMeleeIndex(stack).map(MeleeWeaponIndex::createItemStack).orElse(stack);
     }
 
 
