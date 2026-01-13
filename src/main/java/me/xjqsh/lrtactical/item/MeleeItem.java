@@ -21,11 +21,10 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.common.ToolAction;
-import net.minecraftforge.common.ToolActions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+// import net.neoforged.neoforge.common.ToolAction;
+// import net.neoforged.neoforge.common.ToolActions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,13 +37,13 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
         super(new Properties().stacksTo(1).setNoRepair());
     }
 
-    @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
-        if (slot == EquipmentSlot.MAINHAND) {
-            return getMeleeIndex(stack).map(MeleeWeaponIndex::getDefaultModifiers).orElse(ImmutableMultimap.of());
-        }
-        return ImmutableMultimap.of();
-    }
+    // @Override
+    // public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+    //     if (slot == EquipmentSlot.MAINHAND) {
+    //         return getMeleeIndex(stack).map(MeleeWeaponIndex::getDefaultModifiers).orElse(ImmutableMultimap.of());
+    //     }
+    //     return ImmutableMultimap.of();
+    // }
 
     @Override
     public boolean isSame(ItemStack stack1, ItemStack stack2) {
@@ -186,22 +185,20 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
 
             if (hit) {
                 if (CommonConfig.MELEE_ITEM_CONSUME_DURABILITY.get()) {
-                    stack.hurtAndBreak(attackInfo.getDurabilityDamage(), attacker, (player) -> {
-                        player.broadcastBreakEvent(EquipmentSlot.MAINHAND);
-                    });
+                    stack.hurtAndBreak(attackInfo.getDurabilityDamage(), attacker, EquipmentSlot.MAINHAND);
                 }
                 IMeleeWeapon.playMeleeSound(attacker, index.getId(), crit ? "crit" : action.getId() + "_hit", 2, 1);
             }
         });
     }
 
-    @Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
-        return enchantment.category == EnchantmentCategory.WEAPON;
-    }
+    // @Override
+    // public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+    //     return enchantment.category == EnchantmentCategory.WEAPON;
+    // }
 
-    @Override
-    public boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
-        return toolAction == ToolActions.SWORD_SWEEP;
-    }
+    // // @Override
+    // public boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
+    //     return toolAction == ToolActions.SWORD_SWEEP;
+    // }
 }

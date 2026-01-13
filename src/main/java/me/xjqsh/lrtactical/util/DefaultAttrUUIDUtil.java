@@ -11,8 +11,8 @@ public class DefaultAttrUUIDUtil {
     private static final Map<ResourceLocation, UUID> cache = Maps.newHashMap();
     // 这俩有特殊作用
     static {
-        cache.put(new ResourceLocation("minecraft:generic.attack_damage"), Item.BASE_ATTACK_DAMAGE_UUID);
-        cache.put(new ResourceLocation("minecraft:generic.attack_speed"), Item.BASE_ATTACK_SPEED_UUID);
+        cache.put(ResourceLocation.parse("minecraft:generic.attack_damage"), UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF"));
+        cache.put(ResourceLocation.parse("minecraft:generic.attack_speed"), UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3"));
     }
 
     public static UUID getUUID(ResourceLocation id) {

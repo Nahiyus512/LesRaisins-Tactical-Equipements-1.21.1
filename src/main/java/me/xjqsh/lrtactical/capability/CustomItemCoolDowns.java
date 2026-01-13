@@ -7,15 +7,13 @@ import me.xjqsh.lrtactical.network.message.SCustomCoolDownMessage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.Iterator;
 import java.util.Map;
 
 // 一个原版物品冷却实现的翻版，不过key是ResourceLocation，用来给复用物品id的物品设置冷却
-@AutoRegisterCapability
 public class CustomItemCoolDowns {
-    public static final ResourceLocation ID = new ResourceLocation(EquipmentMod.MOD_ID, "custom_cooldown");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "custom_cooldown");
 
     private final Player player;
     public Map<ResourceLocation, CustomItemCoolDowns.CooldownInstance> cooldowns = Maps.newHashMap();

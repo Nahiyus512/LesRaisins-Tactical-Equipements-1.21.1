@@ -1,18 +1,16 @@
 package me.xjqsh.lrtactical.capability;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class TickHandler {
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            Player player = event.player;
-            player.getCapability(CustomItemCoolDownsProvider.CAPABILITY).ifPresent(CustomItemCoolDowns::tick);
-            player.getCapability(CombatPropertiesProvider.CAPABILITY).ifPresent(CombatProperties::tick);
-        }
+    public static void onPlayerTick(PlayerTickEvent.Pre event) {
+        Player player = event.getEntity();
+        player.getData(me.xjqsh.lrtactical.init.ModCapabilities.CUSTOM_COOLDOWN).tick();
+        player.getData(me.xjqsh.lrtactical.init.ModCapabilities.COMBAT_PROPERTIES).tick();
     }
 }

@@ -9,21 +9,20 @@ import me.xjqsh.lrtactical.network.NetworkHandler;
 import me.xjqsh.lrtactical.network.message.CMeleeAttackRequest;
 import me.xjqsh.lrtactical.network.message.CPrepareMeleeAttack;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 
 import java.util.ArrayList;
 import java.util.List;
 
 //todo 临时实现，太丑了，还得改
-@AutoRegisterCapability
 public class CombatProperties {
-    public static final ResourceLocation ID = new ResourceLocation(EquipmentMod.MOD_ID, "combat_data");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "combat_data");
 
     private final List<DelayTask> delayedActions = new ArrayList<>();
     private ItemStack lastItem = ItemStack.EMPTY;
@@ -123,7 +122,7 @@ public class CombatProperties {
                 this.coolDownTick = Math.max(0, coolDownTick - 1);
             } else {
                 // 客户端，通知服务端进入cd
-                NetworkHandler.CHANNEL.sendToServer(new CPrepareMeleeAttack(action, origin, direction));
+                PacketDistributor.sendToServer(new CPrepareMeleeAttack(action, origin, direction));
 
                 int delay = weapon.getAttackDelay(entity, stack, action);
                 var attack = new DelayAttack(delay, stack, action);
@@ -203,7 +202,7 @@ public class CombatProperties {
         public void perform(Player player) {
             if (stack.getItem() instanceof IMeleeWeapon weapon && weapon.isSame(stack, player.getMainHandItem())) {
                 List<Entity> entities = weapon.collectTargets(player, stack, action, player.getEyePosition(), player.getLookAngle());
-                NetworkHandler.CHANNEL.sendToServer(new CMeleeAttackRequest(action, entities));
+                PacketDistributor.sendToServer(new CMeleeAttackRequest(action, entities));
             }
         }
     }

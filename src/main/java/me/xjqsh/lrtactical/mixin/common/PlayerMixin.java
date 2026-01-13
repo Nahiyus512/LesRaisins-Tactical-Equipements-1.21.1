@@ -1,6 +1,6 @@
 package me.xjqsh.lrtactical.mixin.common;
 
-import me.xjqsh.lrtactical.capability.CustomItemCoolDownsProvider;
+import me.xjqsh.lrtactical.init.ModCapabilities;
 import me.xjqsh.lrtactical.item.FlashShieldItem;
 import me.xjqsh.lrtactical.network.NetworkHandler;
 import me.xjqsh.lrtactical.network.message.SShieldDisable;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,15 +33,11 @@ public abstract class PlayerMixin extends LivingEntity {
         ItemStack stack = this.getMainHandItem();
         if (stack.getItem() instanceof FlashShieldItem item) {
             this.getCooldowns().addCooldown(item, 30);
-            this.getCapability(CustomItemCoolDownsProvider.CAPABILITY).ifPresent(cap ->{
-                cap.addCooldown(new ResourceLocation("shield_disabled"), 30);
-            });
+            this.getData(ModCapabilities.CUSTOM_COOLDOWN).addCooldown(ResourceLocation.parse("shield_disabled"), 30);
+
             if ((Object)this instanceof ServerPlayer serverPlayer) {
                 // 发送消息到客户端，触发动画
-                NetworkHandler.CHANNEL.send(
-                        PacketDistributor.PLAYER.with(() -> serverPlayer),
-                        new SShieldDisable()
-                );
+                PacketDistributor.sendToPlayer(serverPlayer, new SShieldDisable());
             }
             ci.cancel();
         }

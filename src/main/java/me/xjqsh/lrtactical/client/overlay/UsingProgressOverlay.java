@@ -4,20 +4,24 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.item.ICustomItem;
 import me.xjqsh.lrtactical.api.item.IThrowable;
-import me.xjqsh.lrtactical.capability.CombatPropertiesProvider;
+import me.xjqsh.lrtactical.capability.CombatProperties;
+import me.xjqsh.lrtactical.init.ModCapabilities;
 import me.xjqsh.lrtactical.item.throwable.ThrowableData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
-public class UsingProgressOverlay implements IGuiOverlay {
-    public static final ResourceLocation ARROW_TEXTURE = new ResourceLocation(EquipmentMod.MOD_ID, "textures/gui/arrow.png");
-    @Override
-    public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+public class UsingProgressOverlay {
+    public static final ResourceLocation ARROW_TEXTURE = ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "textures/gui/arrow.png");
+
+    public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
+        int screenWidth = guiGraphics.guiWidth();
+        int screenHeight = guiGraphics.guiHeight();
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if (player == null) {
@@ -56,18 +60,17 @@ public class UsingProgressOverlay implements IGuiOverlay {
             }
         }
 
-        player.getCapability(CombatPropertiesProvider.CAPABILITY).ifPresent(cap -> {
-            if (cap.getCoolDownTick() > 0) {
-                float maxTick = cap.getLastMaxTick();
-                float progress = 1 - Math.min(1f, cap.getCoolDownTick() / maxTick);
-                int x = screenWidth / 2 - 16;
-                int y = screenHeight / 2 + 16;
-                int alpha = 0x80;
-                if (progress == 1f) {
-                    alpha = (int) (80 + 80 * Math.sin(cap.getCoolDownTick() / 2f));
-                }
-                guiGraphics.fill(x, y, (int) (x + progress * 32), y + 4, 0xFFFFFF | (alpha << 24));
+        var cap = player.getData(ModCapabilities.COMBAT_PROPERTIES);
+        if (cap.getCoolDownTick() > 0) {
+            float maxTick = cap.getLastMaxTick();
+            float progress = 1 - Math.min(1f, cap.getCoolDownTick() / maxTick);
+            int x = screenWidth / 2 - 16;
+            int y = screenHeight / 2 + 16;
+            int alpha = 0x80;
+            if (progress == 1f) {
+                alpha = (int) (80 + 80 * Math.sin(cap.getCoolDownTick() / 2f));
             }
-        });
+            guiGraphics.fill(x, y, (int) (x + progress * 32), y + 4, 0xFFFFFF | (alpha << 24));
+        }
     }
 }

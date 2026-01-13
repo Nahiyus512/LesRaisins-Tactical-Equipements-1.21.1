@@ -18,7 +18,7 @@ public class ParticleOptionsDeserializer implements JsonDeserializer<ParticleOpt
         if (ele.isJsonPrimitive() && ele.getAsJsonPrimitive().isString()) {
             String particle = ele.getAsString();
             try {
-                return ParticleArgument.readParticle(new StringReader(particle), BuiltInRegistries.PARTICLE_TYPE.asLookup());
+                return ParticleArgument.readParticle(new StringReader(particle), net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
             } catch (CommandSyntaxException e) {
                 throw new JsonParseException("Can't parse particle type: " + particle, e);
             }

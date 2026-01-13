@@ -10,28 +10,28 @@ import me.xjqsh.lrtactical.item.MeleeItem;
 import me.xjqsh.lrtactical.item.ThrowableItem;
 import me.xjqsh.lrtactical.item.index.MeleeWeaponIndex;
 import me.xjqsh.lrtactical.item.index.ThrowableIndex;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+// @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class ModItems {
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, EquipmentMod.MOD_ID);
-    public static final RegistryObject<CreativeModeTab> THROWABLE_TAB = TABS.register("throwable",
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> THROWABLE_TAB = TABS.register("throwable",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("item_group.lrtactical.throwable"))
                     .icon(ModItems::getThrowableIcon)
                     .displayItems(ModItems::fillThrowables)
                     .build()
     );
-    public static final RegistryObject<CreativeModeTab> MELEE_TAB = TABS.register("melee",
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MELEE_TAB = TABS.register("melee",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("item_group.lrtactical.melee"))
                     .icon(ModItems::getMeleeIcon)
@@ -40,16 +40,16 @@ public class ModItems {
                     .build()
     );
 
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, EquipmentMod.MOD_ID);
-    public static RegistryObject<ThrowableItem> THROWABLE = ITEMS.register("throwable", ThrowableItem::new);
-    public static RegistryObject<MeleeItem> MELEE = ITEMS.register("melee", MeleeItem::new);
-    public static RegistryObject<FlashShieldItem> FLASH_SHIELD = ITEMS.register("flash_shield", FlashShieldItem::new);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, EquipmentMod.MOD_ID);
+    public static DeferredHolder<Item, ThrowableItem> THROWABLE = ITEMS.register("throwable", ThrowableItem::new);
+    public static DeferredHolder<Item, MeleeItem> MELEE = ITEMS.register("melee", MeleeItem::new);
+    public static DeferredHolder<Item, FlashShieldItem> FLASH_SHIELD = ITEMS.register("flash_shield", FlashShieldItem::new);
 
     public static ItemStack getThrowableIcon() {
         ItemStack stack = new ItemStack(THROWABLE.get());
         IThrowable iThrowable = IThrowable.of(stack);
         if (iThrowable != null) {
-            iThrowable.setId(stack, new ResourceLocation(EquipmentMod.MOD_ID, "m67"));
+            iThrowable.setId(stack, ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "m67"));
         }
         return stack;
     }
@@ -58,7 +58,7 @@ public class ModItems {
         ItemStack stack = new ItemStack(MELEE.get());
         IMeleeWeapon iMeleeWeapon = IMeleeWeapon.of(stack);
         if (iMeleeWeapon != null) {
-            iMeleeWeapon.setId(stack, new ResourceLocation(EquipmentMod.MOD_ID, "karambit"));
+            iMeleeWeapon.setId(stack, ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "karambit"));
         }
         return stack;
     }

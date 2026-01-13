@@ -1,33 +1,43 @@
 package me.xjqsh.lrtactical.network.message;
 
-import me.xjqsh.lrtactical.capability.CustomItemCoolDownsProvider;
+import me.xjqsh.lrtactical.EquipmentMod;
+import me.xjqsh.lrtactical.capability.CustomItemCoolDowns;
+import me.xjqsh.lrtactical.init.ModCapabilities;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record SCustomCoolDownMessage(ResourceLocation id, int duration) implements CustomPacketPayload {
 
-public record SCustomCoolDownMessage(ResourceLocation id, int duration) {
+    public static final Type<SCustomCoolDownMessage> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "custom_cooldown"));
 
-    public static void encode(SCustomCoolDownMessage message, FriendlyByteBuf buf) {
+    public static final StreamCodec<RegistryFriendlyByteBuf, SCustomCoolDownMessage> STREAM_CODEC = StreamCodec.of(
+            SCustomCoolDownMessage::encode,
+            SCustomCoolDownMessage::decode
+    );
+
+    public static void encode(RegistryFriendlyByteBuf buf, SCustomCoolDownMessage message) {
         buf.writeResourceLocation(message.id);
         buf.writeInt(message.duration);
     }
 
-    public static SCustomCoolDownMessage decode(FriendlyByteBuf buf) {
+    public static SCustomCoolDownMessage decode(RegistryFriendlyByteBuf buf) {
         return new SCustomCoolDownMessage(buf.readResourceLocation(), buf.readInt());
     }
 
-    public static void handle(SCustomCoolDownMessage message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> handle(message));
-        }
-        context.setPacketHandled(true);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public static void handle(SCustomCoolDownMessage message, IPayloadContext context) {
+        context.enqueueWork(() -> handle(message));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -36,14 +46,11 @@ public record SCustomCoolDownMessage(ResourceLocation id, int duration) {
         if (player == null) {
             return;
         }
-        player.getCapability(CustomItemCoolDownsProvider.CAPABILITY).ifPresent(
-            coolDownCapability -> {
-                if (message.duration() == 0) {
-                    coolDownCapability.removeCooldown(message.id());
-                } else {
-                    coolDownCapability.addCooldown(message.id(), message.duration());
-                }
-            }
-        );
+        CustomItemCoolDowns coolDownCapability = player.getData(ModCapabilities.CUSTOM_COOLDOWN);
+        if (message.duration() == 0) {
+            coolDownCapability.removeCooldown(message.id());
+        } else {
+            coolDownCapability.addCooldown(message.id(), message.duration());
+        }
     }
 }

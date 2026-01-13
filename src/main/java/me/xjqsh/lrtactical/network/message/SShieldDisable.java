@@ -1,32 +1,43 @@
 package me.xjqsh.lrtactical.network.message;
 
 import com.tacz.guns.client.renderer.item.AnimateGeoItemRenderer;
+import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.item.FlashShieldItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record SShieldDisable() implements CustomPacketPayload {
 
-public record SShieldDisable() {
-    public static void encode(SShieldDisable message, FriendlyByteBuf buf) {
+    public static final Type<SShieldDisable> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "shield_disable"));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, SShieldDisable> STREAM_CODEC = StreamCodec.of(
+            SShieldDisable::encode,
+            SShieldDisable::decode
+    );
+
+    public static void encode(RegistryFriendlyByteBuf buf, SShieldDisable message) {
     }
 
-    public static SShieldDisable decode(FriendlyByteBuf buf) {
+    public static SShieldDisable decode(RegistryFriendlyByteBuf buf) {
         return new SShieldDisable();
     }
 
-    public static void handle(SShieldDisable message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> handle(message));
-        }
-        context.setPacketHandled(true);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public static void handle(SShieldDisable message, IPayloadContext context) {
+        context.enqueueWork(() -> handle(message));
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -15,7 +15,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,14 +42,13 @@ public class MeleeWeaponIndex<T extends MeleeWeaponData> implements ICustomItemI
         this.tooltip = tooltip;
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
         for (var entry : data.getRawAttributes().getAttributes()) {
-            Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(entry.id());
+            Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(entry.id());
             if (attribute == null) {
                 EquipmentMod.LOGGER.error("Unknown attribute {} for melee weapon {}", entry.id(), id);
                 continue;
             }
             builder.put(attribute, new AttributeModifier(
-                    DefaultAttrUUIDUtil.getUUID(entry.id()),
-                    "LesRaisins Custom Item",
+                    ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "melee_modifier_" + entry.id().getPath()),
                     entry.amount(),
                     entry.operation()
             ));

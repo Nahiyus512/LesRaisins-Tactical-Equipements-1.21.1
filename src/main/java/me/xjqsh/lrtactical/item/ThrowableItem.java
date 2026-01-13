@@ -4,8 +4,9 @@ import com.tacz.guns.api.item.IAnimationItem;
 import com.tacz.guns.client.renderer.item.AnimateGeoItemRenderer;
 import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.item.IThrowable;
-import me.xjqsh.lrtactical.capability.CustomItemCoolDownsProvider;
+import me.xjqsh.lrtactical.capability.CustomItemCoolDowns;
 import me.xjqsh.lrtactical.client.renderer.item.ThrowableItemRendererWrapper;
+import me.xjqsh.lrtactical.init.ModCapabilities;
 import me.xjqsh.lrtactical.item.index.ThrowableIndex;
 import me.xjqsh.lrtactical.item.throwable.area.EffectCloudThrowableData;
 import net.minecraft.network.chat.Component;
@@ -19,11 +20,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +44,7 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
 
     @ParametersAreNonnullByDefault
     @Override
-    public int getUseDuration(ItemStack pStack) {
+    public int getUseDuration(ItemStack pStack, LivingEntity entity) {
         return 72000;
     }
 
@@ -88,12 +89,10 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
             return InteractionResultHolder.fail(player.getItemInHand(pUsedHand));
         }
         ItemStack stack = player.getItemInHand(pUsedHand);
+        CustomItemCoolDowns cap = player.getData(ModCapabilities.CUSTOM_COOLDOWN);
         boolean flag = getThrowableIndex(stack)
                 .map(index -> index.getData().getCooldownCategory())
-                .map(id -> player.getCapability(CustomItemCoolDownsProvider.CAPABILITY)
-                        .map(cap -> cap.isOnCooldown(id))
-                        .orElse(false)
-                ).orElse(false);
+                .map(cap::isOnCooldown).orElse(false);
         if (!flag) {
             player.startUsingItem(pUsedHand);
         }
@@ -111,10 +110,8 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
 
         ResourceLocation id = index.getData().getCooldownCategory();
         if (id != null) {
-
-            entity.getCapability(CustomItemCoolDownsProvider.CAPABILITY).ifPresent(cap -> {
-                cap.addCooldown(id, index.getData().getCooldown());
-            });
+            CustomItemCoolDowns cap = entity.getData(ModCapabilities.CUSTOM_COOLDOWN);
+            cap.addCooldown(id, index.getData().getCooldown());
         }
         stack.shrink(1);
     }
@@ -169,10 +166,11 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
 
     @ParametersAreNonnullByDefault
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         this.getThrowableIndex(stack).ifPresent(index -> {
             if (index.getData() instanceof EffectCloudThrowableData data) {
-                PotionUtils.addPotionTooltip(data.getCloudData().getEffectInstances(), pTooltipComponents, 1.0F);
+                PotionContents contents = new PotionContents(java.util.Optional.empty(), java.util.Optional.empty(), data.getCloudData().getEffectInstances());
+                contents.addPotionTooltip(pTooltipComponents::add, 1.0F, 20.0F);
             }
         });
     }

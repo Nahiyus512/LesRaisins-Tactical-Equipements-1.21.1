@@ -1,8 +1,9 @@
 package me.xjqsh.lrtactical.resource;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
+import java.lang.reflect.Type;
+import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.collision.ITargetFilter;
 import me.xjqsh.lrtactical.item.index.MeleeWeaponIndex;
 import me.xjqsh.lrtactical.item.index.ThrowableIndex;
@@ -15,29 +16,33 @@ import me.xjqsh.lrtactical.network.message.SPackSyncMessage;
 import me.xjqsh.lrtactical.resource.manager.MeleeIndexManager;
 import me.xjqsh.lrtactical.resource.manager.ThrowableIndexManager;
 import me.xjqsh.lrtactical.resource.serializer.ParticleOptionsDeserializer;
+import me.xjqsh.lrtactical.resource.serializer.ResourceLocationSerializer;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME, modid = EquipmentMod.MOD_ID)
 public class CommonAssetsManager implements ICommonResourceProvider {
-    public static CommonAssetsManager INSTANCE;
+
     public static Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
+            .registerTypeAdapter(ResourceLocation.class, new ResourceLocationSerializer())
             .registerTypeAdapter(CombatData.class, new CombatData.Deserializer())
             .registerTypeAdapter(ITargetFilter.class, new ITargetFilter.Deserializer())
             .registerTypeAdapter(AttributeData.class, new AttributeData.Deserializer())
             .registerTypeAdapter(ParticleOptions.class, new ParticleOptionsDeserializer())
             .registerTypeAdapter(EffectCloudThrowableData.EffectData.class, new EffectCloudThrowableData.EffectDataDeSerializer())
             .create();
+
+    public static CommonAssetsManager INSTANCE;
 
     private CommonAssetsManager() {
     }

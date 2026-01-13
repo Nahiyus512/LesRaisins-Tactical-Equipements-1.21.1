@@ -16,12 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraftforge.client.event.sound.PlaySoundEvent;
-import net.minecraftforge.client.event.sound.PlaySoundSourceEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
+import net.neoforged.neoforge.client.event.sound.PlaySoundSourceEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -59,19 +58,25 @@ public class SoundHandler
     }
 
     private void initReflection() {
-        this.playingSounds = ObfuscationReflectionHelper.findField(SoundEngine.class, "f_120226_");
+        try {
+            this.playingSounds = SoundEngine.class.getDeclaredField("instanceToChannel");
+            this.playingSounds.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            // Fallback or log error
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unchecked")
     @SubscribeEvent
-    public void deafenPlayer(TickEvent.ClientTickEvent event)
+    public void deafenPlayer(ClientTickEvent.Post event)
     {
-        if(event.phase == TickEvent.Phase.START || Minecraft.getInstance().player == null || this.soundEngine == null) {
+        if(Minecraft.getInstance().player == null || this.soundEngine == null) {
             return;
         }
 
         /* If deafened, play ringing sound if not already playing, otherwise return */
-        MobEffectInstance effect = Minecraft.getInstance().player.getEffect(ModEffects.DEAFENED.get());
+        MobEffectInstance effect = Minecraft.getInstance().player.getEffect(ModEffects.DEAFENED);
         if(effect == null) {
             if(!this.isDeafened) {
                 return;
@@ -101,10 +106,10 @@ public class SoundHandler
                     }
 
                     ResourceLocation loc = sound.getLocation();
-                    if (loc.equals(new ResourceLocation("minecraft", "entity.generic.explode"))) {
+                    if (loc.equals(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.explode"))) {
                         return;
                     }
-                    if (loc.equals(new ResourceLocation(EquipmentMod.MOD_ID, "entity.grenade.flash.explode"))) {
+                    if (loc.equals(ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "entity.grenade.flash.explode"))) {
                         return;
                     }
 
@@ -132,7 +137,7 @@ public class SoundHandler
     }
 
     @SubscribeEvent
-    public void lowerInitialVolume(PlaySoundEvent event)
+    public void onPlaySound(PlaySoundEvent event)
     {
         if(this.soundEngine == null) {
             this.soundEngine = event.getEngine();
@@ -144,11 +149,14 @@ public class SoundHandler
 
         // Exempt initial explosion from muting
         ResourceLocation loc = event.getSound().getLocation();
-        if (loc.equals(new ResourceLocation("minecraft", "entity.generic.explode"))) {
+        if (loc.equals(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.explode"))) {
+            return;
+        }
+        if (loc.equals(ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "entity.grenade.flash.explode"))) {
             return;
         }
 
-        MobEffectInstance effect = Minecraft.getInstance().player.getEffect(ModEffects.DEAFENED.get());
+        MobEffectInstance effect = Minecraft.getInstance().player.getEffect(ModEffects.DEAFENED);
         int duration = effect != null ? effect.getDuration() : 0;
         if(duration == 0) return;
 
@@ -166,12 +174,30 @@ public class SoundHandler
     }
 
     @SubscribeEvent
-    public void onPlaySoundSource(PlaySoundSourceEvent event) {
+    public void onPlaySoundSource(PlaySoundSourceEvent event)
+    {
         if (event.getSound() instanceof SoundMuted muted && muted.parent instanceof GunSoundInstance gunSoundInstance) {
             SoundBuffer soundBuffer = gunSoundInstance.getSoundBuffer();
             if (soundBuffer != null) {
                 event.getChannel().attachStaticBuffer(soundBuffer);
                 event.getChannel().play();
+            }
+        }
+
+        if(this.soundVolumes.containsKey(event.getSound()))
+        {
+            event.getChannel().setVolume(this.soundVolumes.get(event.getSound()));
+        }
+
+        ResourceLocation loc = event.getSound().getLocation();
+        if (loc.equals(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.explode"))) {
+            event.getChannel().setVolume(0.0F);
+        }
+
+        if (Minecraft.getInstance().player != null) {
+            MobEffectInstance effect = Minecraft.getInstance().player.getEffect(ModEffects.DEAFENED);
+            if(effect != null) {
+                event.getChannel().setVolume(0.1F);
             }
         }
     }

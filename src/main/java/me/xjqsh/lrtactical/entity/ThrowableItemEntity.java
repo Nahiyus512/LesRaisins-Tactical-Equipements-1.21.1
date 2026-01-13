@@ -12,7 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -35,15 +35,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-public abstract class ThrowableItemEntity extends Projectile implements IEntityAdditionalSpawnData {
+public abstract class ThrowableItemEntity extends Projectile implements IEntityWithComplexSpawn {
     private static final EntityDataAccessor<ItemStack> DATA_ITEM_STACK = SynchedEntityData.defineId(ThrowableItemEntity.class, EntityDataSerializers.ITEM_STACK);
     private int life = 100;
     private float gravity = 0.07f;
@@ -64,28 +62,30 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
         super(type, level);
     }
 
+    /*
     @NotNull
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
+    */
 
-    protected void defineSynchedData() {
-        this.getEntityData().define(DATA_ITEM_STACK, ItemStack.EMPTY);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_ITEM_STACK, ItemStack.EMPTY);
     }
 
     public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
         ItemStack itemstack = this.getItemRaw();
         if (!itemstack.isEmpty()) {
-            pCompound.put("Item", itemstack.save(new CompoundTag()));
+            pCompound.put("Item", itemstack.save(this.registryAccess(), new CompoundTag()));
         }
 
     }
 
     public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
-        ItemStack itemstack = ItemStack.of(pCompound.getCompound("Item"));
+        ItemStack itemstack = ItemStack.parse(this.registryAccess(), pCompound.getCompound("Item")).orElse(ItemStack.EMPTY);
         this.setItem(itemstack);
     }
 
@@ -99,7 +99,7 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
     }
 
     public void setItem(ItemStack pStack) {
-        if (!pStack.is(this.getDefaultItem()) || pStack.hasTag()) {
+        if (!pStack.is(this.getDefaultItem()) || !pStack.getComponentsPatch().isEmpty()) {
             this.getEntityData().set(DATA_ITEM_STACK, pStack.copyWithCount(1));
         }
 
@@ -107,6 +107,15 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
 
     protected Item getDefaultItem() {
         return ModItems.THROWABLE.get();
+    }
+
+    public void onSyncedDataUpdated(EntityDataAccessor<?> pKey) {
+        if (DATA_ITEM_STACK.equals(pKey)) {
+            ItemStack pStack = this.getItemRaw();
+            if (!pStack.is(this.getDefaultItem()) || pStack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) {
+                this.life = 200;
+            }
+        }
     }
 
     @Override
@@ -315,9 +324,7 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
         if (stack.getItem() instanceof IThrowable iThrowable) {
             ResourceLocation id = iThrowable.getId(stack);
             var packet = new SCustomSound(SCustomSound.SoundType.THROWABLE, id, key, this.position(), volume, pitch);
-            NetworkHandler.CHANNEL.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(
-                    this.getX(), this.getY(), this.getZ(), 64, this.level().dimension())
-            ), packet);
+            NetworkHandler.sendToNearbyPlayers(packet, this.level(), this.position(), 64);
         }
     }
 
@@ -332,7 +339,7 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
     }
 
     public void setBaseData(EntityData data) {
-        this.setGravity(data.getGravity());
+        this.setThrowableGravity(data.getGravity());
         this.setBounceFactor(data.getBounceFactor());
         this.setShouldBounce(data.isShouldBounce());
         this.setHitDamage(data.getHitDamage());
@@ -340,11 +347,11 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
         this.setTailParticle(data.getTailParticles());
     }
 
-    public float getGravity() {
+    public float getThrowableGravity() {
         return gravity;
     }
 
-    public void setGravity(float gravity) {
+    public void setThrowableGravity(float gravity) {
         this.gravity = gravity;
     }
 
@@ -397,7 +404,7 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
     }
 
     @Override
-    public void writeSpawnData(FriendlyByteBuf buffer) {
+    public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
         buffer.writeInt(life);
         buffer.writeFloat(gravity);
         buffer.writeDouble(bounceFactor);
@@ -405,21 +412,21 @@ public abstract class ThrowableItemEntity extends Projectile implements IEntityA
         buffer.writeBoolean(brokeOnGround);
         if (tailParticle != null) {
             buffer.writeBoolean(true);
-            EntityDataSerializers.PARTICLE.write(buffer, tailParticle);
+            net.minecraft.core.particles.ParticleTypes.STREAM_CODEC.encode(buffer, tailParticle);
         } else {
             buffer.writeBoolean(false);
         }
     }
 
     @Override
-    public void readSpawnData(FriendlyByteBuf additionalData) {
+    public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
         life = additionalData.readInt();
         gravity = additionalData.readFloat();
         bounceFactor = additionalData.readDouble();
         shouldBounce = additionalData.readBoolean();
         brokeOnGround = additionalData.readBoolean();
         if (additionalData.readBoolean()) {
-            tailParticle = EntityDataSerializers.PARTICLE.read(additionalData);
+            tailParticle = net.minecraft.core.particles.ParticleTypes.STREAM_CODEC.decode(additionalData);
         } else {
             tailParticle = null;
         }

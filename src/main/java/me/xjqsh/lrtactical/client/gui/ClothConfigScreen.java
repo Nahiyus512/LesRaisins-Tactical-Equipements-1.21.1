@@ -10,9 +10,9 @@ import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,8 +28,8 @@ public class ClothConfigScreen extends Screen {
 
     public static void registerNoClothConfigPage() {
         if (!ModList.get().isLoaded(CompatRegistry.CLOTH_CONFIG)) {
-            ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () ->
-                    new ConfigScreenHandler.ConfigScreenFactory((client, parent) -> new ClothConfigScreen(parent)));
+            ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class, () ->
+                    (client, parent) -> new ClothConfigScreen(parent));
         }
     }
 
@@ -50,7 +50,7 @@ public class ClothConfigScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics gui, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(gui);
+        this.renderBackground(gui, pMouseX, pMouseY, pPartialTick);
         this.message.renderCentered(gui, this.width / 2, 80);
         super.render(gui, pMouseX, pMouseY, pPartialTick);
     }

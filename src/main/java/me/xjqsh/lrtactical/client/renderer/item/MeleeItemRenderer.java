@@ -130,7 +130,7 @@ public class MeleeItemRenderer extends AnimateGeoItemRenderer<CustomBedrockModel
     @Override
     public void doExtraTransforms(PoseStack poseStack, CustomBedrockModel model, ItemStack stack) {
         super.doExtraTransforms(poseStack, model, stack);
-        JumpSwayUtil.applyJumpingSway(model, Minecraft.getInstance().getFrameTime());
+        JumpSwayUtil.applyJumpingSway(model, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true));
     }
 
     @Override
@@ -143,7 +143,7 @@ public class MeleeItemRenderer extends AnimateGeoItemRenderer<CustomBedrockModel
                 poseStack.translate(0.5, 1.5, 0.5);
                 poseStack.mulPose(Axis.ZN.rotationDegrees(180));
                 VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityTranslucent(display.getSlotTexture()));
-                SLOT_MODEL.renderToBuffer(poseStack, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                SLOT_MODEL.renderToBuffer(poseStack, buffer, light, overlay, 0xFFFFFFFF);
                 return;
             }
             poseStack.pushPose();
@@ -165,16 +165,16 @@ public class MeleeItemRenderer extends AnimateGeoItemRenderer<CustomBedrockModel
                             getTextureLocation(stack)
                     ), light, overlay);
                 } else {
-                    VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityTranslucent(MissingTextureAtlasSprite.getLocation()));
-                    SLOT_MODEL.renderToBuffer(poseStack, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                    VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityCutout(MissingTextureAtlasSprite.getLocation()));
+                    SLOT_MODEL.renderToBuffer(poseStack, buffer, light, overlay, 0xFFFFFFFF);
                 }
             }
             poseStack.popPose();
         }, () -> {
             poseStack.translate(0.5, 1.5, 0.5);
             poseStack.mulPose(Axis.ZN.rotationDegrees(180));
-            VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityTranslucent(MissingTextureAtlasSprite.getLocation()));
-            SLOT_MODEL.renderToBuffer(poseStack, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+            VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityCutout(MissingTextureAtlasSprite.getLocation()));
+            SLOT_MODEL.renderToBuffer(poseStack, buffer, light, overlay, 0xFFFFFFFF);
         });
     }
 }

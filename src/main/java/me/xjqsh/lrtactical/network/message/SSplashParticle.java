@@ -1,42 +1,53 @@
 package me.xjqsh.lrtactical.network.message;
 
+import me.xjqsh.lrtactical.EquipmentMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record SSplashParticle(
         BlockPos blockPos,
         int color
-) {
-    public static void encode(SSplashParticle message, FriendlyByteBuf buf) {
+) implements CustomPacketPayload {
+
+    public static final Type<SSplashParticle> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "splash_particle"));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, SSplashParticle> STREAM_CODEC = StreamCodec.of(
+            SSplashParticle::encode,
+            SSplashParticle::decode
+    );
+
+    public static void encode(RegistryFriendlyByteBuf buf, SSplashParticle message) {
         buf.writeBlockPos(message.blockPos);
         buf.writeInt(message.color);
     }
 
-    public static SSplashParticle decode(FriendlyByteBuf buf) {
+    public static SSplashParticle decode(RegistryFriendlyByteBuf buf) {
         return new SSplashParticle(
                 buf.readBlockPos(),
                 buf.readInt()
         );
     }
 
-    public static void handle(SSplashParticle message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> handle(message));
-        }
-        context.setPacketHandled(true);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public static void handle(SSplashParticle message, IPayloadContext context) {
+        context.enqueueWork(() -> handle(message));
     }
 
     @OnlyIn(Dist.CLIENT)

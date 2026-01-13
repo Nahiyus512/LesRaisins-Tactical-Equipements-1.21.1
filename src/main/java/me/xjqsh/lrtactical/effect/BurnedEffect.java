@@ -15,13 +15,8 @@ public class BurnedEffect extends MobEffect {
         super(MobEffectCategory.HARMFUL, pColor);
     }
 
-    @Override
-    public List<ItemStack> getCurativeItems() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void applyEffectTick(LivingEntity pLivingEntity, int pAmplifier) {
+    // @Override
+    public boolean applyEffectTick(LivingEntity pLivingEntity, int pAmplifier) {
         // 延长着火时间
         if (pLivingEntity.isOnFire()) {
             int r = pLivingEntity.getRemainingFireTicks();
@@ -29,10 +24,16 @@ public class BurnedEffect extends MobEffect {
                 pLivingEntity.setRemainingFireTicks(r + 40);
             }
         }
+        return true;
     }
 
+    // @Override
+    // public List<ItemStack> getCurativeItems() {
+    //    return Collections.emptyList();
+    // }
+
     @Override
-    public boolean isDurationEffectTick(int duration, int amplifier){
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier){
         return duration % 20 == 0;
     }
 

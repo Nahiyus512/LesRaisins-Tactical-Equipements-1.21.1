@@ -1,15 +1,24 @@
 package me.xjqsh.lrtactical.network.message;
 
+import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.client.ClientEventsHandler;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record SShakeScreenMessage(double time, double radius, double amplitude, Vec3 position) implements CustomPacketPayload {
 
-public record SShakeScreenMessage(double time, double radius, double amplitude, Vec3 position) {
+    public static final Type<SShakeScreenMessage> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "shake_screen"));
 
-    public static void encode(SShakeScreenMessage message, FriendlyByteBuf buffer) {
+    public static final StreamCodec<RegistryFriendlyByteBuf, SShakeScreenMessage> STREAM_CODEC = StreamCodec.of(
+            SShakeScreenMessage::encode,
+            SShakeScreenMessage::decode
+    );
+
+    public static void encode(RegistryFriendlyByteBuf buffer, SShakeScreenMessage message) {
         buffer.writeDouble(message.time);
         buffer.writeDouble(message.radius);
         buffer.writeDouble(message.amplitude);
@@ -18,20 +27,21 @@ public record SShakeScreenMessage(double time, double radius, double amplitude, 
         buffer.writeDouble(message.position.z);
     }
 
-    public static SShakeScreenMessage decode(FriendlyByteBuf buffer) {
+    public static SShakeScreenMessage decode(RegistryFriendlyByteBuf buffer) {
         return new SShakeScreenMessage(
                 buffer.readDouble(), buffer.readDouble(), buffer.readDouble(),
                 new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble())
         );
     }
 
-    public static void handle(SShakeScreenMessage message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> ClientEventsHandler.handleShakeClient(
-                    message.time, message.radius, message.amplitude, message.position
-            ));
-        }
-        context.setPacketHandled(true);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+
+    public static void handle(SShakeScreenMessage message, IPayloadContext context) {
+        context.enqueueWork(() -> ClientEventsHandler.handleShakeClient(
+                message.time, message.radius, message.amplitude, message.position
+        ));
     }
 }

@@ -1,0 +1,53 @@
+[versions]
+neoforge = "21.1.93"
+minecraft = "1.21.1"
+parchment = "2024.11.17"
+moddev = "2.0.74"
+
+# Dependencies
+tacz = "1.0.4"
+cloth-config = "15.0.140"
+player-animation-lib = "2.0.1+1.21.1"
+jei = "19.21.0.247"
+luaj = "3.0.8-figura"
+bcel = "6.6.1"
+commons-math3 = "3.6.1"
+sodium = "mc1.21.1-0.6.0-beta.2-neoforge"
+iris = "1.8.0+1.21.1"
+carry-on = "neoforge-1.21.1-2.2.0.5"
+shoulder-surfing = "4.3.3"
+kubejs = "21.1.0.13"
+rhino = "21.1.0.64-neoforge"
+framework = "0.9.2"
+controllable = "0.32.0-1.21.1"
+
+[libraries]
+# Core
+neoforge = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge" }
+
+# Mods
+tacz = { group = "com.tacz", name = "tacz", version.ref = "tacz" }
+cloth-config = { group = "me.shedaniel.cloth", name = "cloth-config-neoforge", version.ref = "cloth-config" }
+player-animation-lib = { group = "dev.kosmx.player-anim", name = "player-animation-lib-forge", version.ref = "player-animation-lib" }
+jei-common-api = { group = "mezz.jei", name = "jei-1.21.1-common-api", version.ref = "jei" }
+jei-neoforge-api = { group = "mezz.jei", name = "jei-1.21.1-neoforge-api", version.ref = "jei" }
+jei-neoforge = { group = "mezz.jei", name = "jei-1.21.1-neoforge", version.ref = "jei" }
+
+maven-modrinth-sodium = { group = "maven.modrinth", name = "sodium", version.ref = "sodium" }
+maven-modrinth-iris = { group = "maven.modrinth", name = "iris", version.ref = "iris" }
+maven-modrinth-carry-on = { group = "maven.modrinth", name = "carry-on", version.ref = "carry-on" }
+maven-modrinth-shoulder-surfing-reloaded = { group = "maven.modrinth", name = "shoulder-surfing-reloaded", version.ref = "shoulder-surfing" }
+curse-maven-framework = { group = "curse.maven", name = "framework-549225", version.ref = "framework" }
+curse-maven-controllable = { group = "curse.maven", name = "controllable-317269", version.ref = "controllable" }
+
+dev-latvian-mods-kubejs-neoforge = { group = "dev.latvian.mods", name = "kubejs-neoforge", version.ref = "kubejs" }
+dev-latvian-mods-rhino = { group = "dev.latvian.mods", name = "rhino", version.ref = "rhino" }
+
+# Libs
+luaj-core = { group = "com.github.FiguraMC.luaj", name = "luaj-core", version.ref = "luaj" }
+luaj-jse = { group = "com.github.FiguraMC.luaj", name = "luaj-jse", version.ref = "luaj" }
+org-apache-bcel = { group = "org.apache.bcel", name = "bcel", version.ref = "bcel" }
+org-apache-commons-math3 = { group = "org.apache.commons", name = "commons-math3", version.ref = "commons-math3" }
+
+[plugins]
+moddev = { id = "net.neoforged.moddev", version.ref = "moddev" }

@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+issueTrackerURL="https://github.com/LesRaisins/LesRaisins-Tactical-Equipements/issues"
+
+[[mods]]
+modId="lrtactical"
+version="1.0.0"
+displayName="LesRaisins Tactical Equipements"
+description='''LRTactical is a tactical equipment mod based on TACZ.'''
+authors="XJQSH"
+logoFile="lrtactical.png"
+
+[[dependencies.lrtactical]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.93,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.lrtactical]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.lrtactical]]
+modId="tacz"
+type="required"
+versionRange="[1.0.4,)"
+ordering="AFTER"
+side="BOTH"

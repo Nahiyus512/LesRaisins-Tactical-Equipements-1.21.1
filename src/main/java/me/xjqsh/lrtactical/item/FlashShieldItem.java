@@ -6,10 +6,9 @@ import com.tacz.guns.api.item.IAnimationItem;
 import me.xjqsh.lrtactical.api.collision.ConeFilter;
 import me.xjqsh.lrtactical.api.item.IMeleeWeapon;
 import me.xjqsh.lrtactical.api.melee.MeleeAction;
-import me.xjqsh.lrtactical.capability.CombatPropertiesProvider;
-import me.xjqsh.lrtactical.capability.CustomItemCoolDownsProvider;
 import me.xjqsh.lrtactical.client.renderer.item.FlashShieldItemRenderer;
 import me.xjqsh.lrtactical.config.ServerConfig;
+import me.xjqsh.lrtactical.init.ModCapabilities;
 import me.xjqsh.lrtactical.init.ModEffects;
 import me.xjqsh.lrtactical.item.throwable.flash.StunThrowableData;
 import me.xjqsh.lrtactical.util.SightTraceUtil;
@@ -21,6 +20,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -29,10 +29,11 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -40,21 +41,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationItem {
-    private final Multimap<Attribute, AttributeModifier> defaultModifiers;
+    // private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     public FlashShieldItem() {
-        super(new Properties().stacksTo(1).durability(350));
-        ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.put(Attributes.MOVEMENT_SPEED, new AttributeModifier("Shield modifier", -0.25, AttributeModifier.Operation.MULTIPLY_BASE));
-        defaultModifiers = builder.build();
-    }
-
-    @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
-        if (slot == EquipmentSlot.MAINHAND) {
-            return defaultModifiers;
-        }
-        return ImmutableMultimap.of();
+        super(new Properties().stacksTo(1).durability(350).attributes(ItemAttributeModifiers.builder()
+                .add(Attributes.MOVEMENT_SPEED, new AttributeModifier(ResourceLocation.fromNamespaceAndPath("lrtactical", "shield_modifier"), -0.25, AttributeModifier.Operation.ADD_MULTIPLIED_BASE), EquipmentSlotGroup.MAINHAND)
+                .build()));
     }
 
     @Override
@@ -118,9 +110,7 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
 
     @Override
     public boolean canAttack(Player attacker, ItemStack stack, MeleeAction action) {
-        boolean isDisabled = attacker.getCapability(CustomItemCoolDownsProvider.CAPABILITY)
-                .map(cap -> cap.isOnCooldown(new ResourceLocation("shield_disabled")))
-                .orElse(false);
+        boolean isDisabled = attacker.getData(ModCapabilities.CUSTOM_COOLDOWN).isOnCooldown(ResourceLocation.parse("shield_disabled"));
         return action == MeleeAction.LEFT && !isDisabled;
     }
 
@@ -136,7 +126,7 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
 
     @ParametersAreNonnullByDefault
     @Override
-    public int getUseDuration(ItemStack pStack) {
+    public int getUseDuration(ItemStack pStack, LivingEntity pEntity) {
         return 10;
     }
 
@@ -147,12 +137,8 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
         if (pUsedHand == InteractionHand.OFF_HAND) {
             return InteractionResultHolder.fail(player.getItemInHand(pUsedHand));
         }
-        boolean coolDown = player.getCapability(CombatPropertiesProvider.CAPABILITY)
-                .map(cap -> cap.getCoolDownTick() > 0)
-                .orElse(false);
-        boolean isDisabled = player.getCapability(CustomItemCoolDownsProvider.CAPABILITY)
-                .map(cap -> cap.isOnCooldown(new ResourceLocation("shield_disabled")))
-                .orElse(false);
+        boolean coolDown = player.getData(ModCapabilities.COMBAT_PROPERTIES).getCoolDownTick() > 0;
+        boolean isDisabled = player.getData(ModCapabilities.CUSTOM_COOLDOWN).isOnCooldown(ResourceLocation.parse("shield_disabled"));
         if (coolDown || isDisabled) {
             return InteractionResultHolder.fail(player.getItemInHand(pUsedHand));
         }
@@ -173,8 +159,8 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
             if (!world.isClientSide()) {
                 if (entity instanceof Player player) {
                     player.getCooldowns().addCooldown(stack.getItem(), ServerConfig.FLASH_SHIELD_COOLDOWN.get());
-                    player.addEffect(new MobEffectInstance(ModEffects.BLIND.get(), 45, 0, false, false));
-                    player.addEffect(new MobEffectInstance(ModEffects.DEAFENED.get(), 60, 0, false, false));
+                    player.addEffect(new MobEffectInstance(ModEffects.BLIND, 45, 0, false, false));
+                    player.addEffect(new MobEffectInstance(ModEffects.DEAFENED, 60, 0, false, false));
                 }
 
                 AABB aabb = entity.getBoundingBox().inflate(12);
@@ -221,14 +207,14 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
                 // Duration attenuated by distance
                 int durationBlinded = data.calcBlindDuration(distance, a1);
                 if (durationBlinded > 0){
-                    target.addEffect(new MobEffectInstance(ModEffects.BLIND.get(), durationBlinded, 0, false, false, true));
+                    target.addEffect(new MobEffectInstance(ModEffects.BLIND, durationBlinded, 0, false, false, true));
                 }
             }
         }
 
         int durationDeafened = data.calcDeafenedDuration(distance);
         if (durationDeafened > 0){
-            target.addEffect(new MobEffectInstance(ModEffects.DEAFENED.get(), durationDeafened, 0, false, false, true));
+            target.addEffect(new MobEffectInstance(ModEffects.DEAFENED, durationDeafened, 0, false, false, true));
         }
     }
 

@@ -9,11 +9,11 @@ import com.tacz.guns.GunMod;
 import com.tacz.guns.resource.manager.JsonDataManager;
 import me.xjqsh.lrtactical.init.ModRegistries;
 import me.xjqsh.lrtactical.item.index.ThrowableIndex;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,13 +58,13 @@ public class ThrowableIndexManager extends JsonDataManager<ThrowableIndex<?, ?>>
         String name = GsonHelper.getAsString(pJson, "name", "unknown.lrtactical.name");
 
         String type_name = GsonHelper.getAsString(pJson, "type");
-        var type = ModRegistries.THROWABLE_TYPE_SUPPLIER.get().getValue(new ResourceLocation(type_name));
+        var type = ModRegistries.THROWABLE_TYPE_REGISTRY.get(ResourceLocation.parse(type_name));
         if (type == null) {
             throw new JsonParseException("Unknown type name \"" + type_name + "\"");
         }
 
         String baseItem = GsonHelper.getAsString(pJson, "base_item", "lrtactical:throwable");
-        var item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(baseItem));
+        var item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(baseItem));
         if (item == null) {
             throw new JsonParseException("Unknown item id \"" + type_name + "\"");
         }

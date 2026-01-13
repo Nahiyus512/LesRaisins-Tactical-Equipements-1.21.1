@@ -12,15 +12,14 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.network.PlayMessages;
+import net.neoforged.neoforge.event.EventHooks;
 
 public class GrenadeEntity extends ThrowableItemEntity {
     public static EntityType<GrenadeEntity> TYPE = EntityType.Builder.<GrenadeEntity>of(GrenadeEntity::new, MobCategory.MISC)
             .setShouldReceiveVelocityUpdates(true)
             .setTrackingRange(64)
             .setUpdateInterval(1)
-            .setCustomClientFactory(GrenadeEntity::new)
+            // .setCustomClientFactory(GrenadeEntity::new) // Handled by register in NeoForge
             .sized(0.3f, 0.3f)
             .noSave()
             .noSummon()
@@ -37,12 +36,13 @@ public class GrenadeEntity extends ThrowableItemEntity {
         super(TYPE, entity, level, lifeTime);
     }
 
-    public GrenadeEntity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        super(TYPE, level);
-    }
-
     public GrenadeEntity(EntityType<GrenadeEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class GrenadeEntity extends ThrowableItemEntity {
             CustomExplosion explosion = new CustomExplosion(this.level(), this, this.getDamage(), this.getRadius(), type);
             explosion.setScreenShakeAmplitude(this.screenShakeAmplitude);
             explosion.setScreenShakeTime(this.screenShakeTime);
-            if (ForgeEventFactory.onExplosionStart(level(), explosion)) {
+            if (EventHooks.onExplosionStart(level(), explosion)) {
                 return;
             }
             explosion.explode();
