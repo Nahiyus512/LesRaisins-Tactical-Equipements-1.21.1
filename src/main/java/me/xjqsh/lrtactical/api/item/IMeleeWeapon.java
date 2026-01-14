@@ -201,8 +201,6 @@ public interface IMeleeWeapon extends ICustomItem {
             }
         }
         
-        // EnchantmentHelper.doPostDamageEffects(attacker, target); // Deprecated/Removed in 1.21, merged into doPostAttackEffects
-
         if (flag2) {
             attacker.crit(target);
         }

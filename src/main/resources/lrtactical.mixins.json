@@ -2,15 +2,17 @@
   "required": true,
   "minVersion": "0.8",
   "package": "me.xjqsh.lrtactical.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "lrtactical.refmap.json",
   "mixins": [
+    "ItemAccessor",
     "common.AnvilMenuMixin",
     "common.LivingEntityMixin",
     "common.PlayerMixin"
   ],
   "client": [
-    "client.GunSmithTableScreenMixin", "client.PlayerModelMixin"
+    "client.GunSmithTableScreenMixin",
+    "client.PlayerModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

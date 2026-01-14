@@ -25,9 +25,8 @@ public class CriticalHitEventHandler {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         Registry<Enchantment> registry = player.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
-        Holder<Enchantment> backstab = registry.getHolderOrThrow(ModEnchantment.BACKSTAB);
-        
-        int level = EnchantmentHelper.getItemEnchantmentLevel(backstab, player.getMainHandItem());
+        @SuppressWarnings("deprecation")
+        int level = EnchantmentHelper.getItemEnchantmentLevel(registry.getHolderOrThrow(ModEnchantment.BACKSTAB), player.getMainHandItem());
         if (level > 0) {
             Entity target = event.getTarget();
             Vec3 origin = player.getEyePosition();

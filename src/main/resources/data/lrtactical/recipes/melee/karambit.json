@@ -24,9 +24,12 @@
     "type": "custom",
     "group": "lrtactical:melee",
     "item": {
-      "item": "lrtactical:melee",
-      "nbt": {
-        "MeleeWeaponId": "lrtactical:karambit"
+      "id": "lrtactical:melee",
+      "count": 1,
+      "components": {
+        "minecraft:custom_data": {
+          "MeleeWeaponId": "lrtactical:karambit"
+        }
       }
     }
   }
