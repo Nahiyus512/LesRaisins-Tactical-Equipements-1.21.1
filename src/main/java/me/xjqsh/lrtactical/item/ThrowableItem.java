@@ -119,8 +119,10 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
     public void onUseTick(Level world, LivingEntity entity, ItemStack stack, int pRemainingUseDuration) {
         this.getThrowableIndex(stack).ifPresent(index ->{
             var data = index.getData();
-            if (data.isCookable() && entity.getTicksUsingItem() >= data.getPrepareTime() + data.getEntityData().getLifeTime()) {
+            int maxCookTime = (int) (data.getEntityData().getLifeTime() * 0.9);
+            if (data.isCookable() && entity.getTicksUsingItem() >= data.getPrepareTime() + maxCookTime) {
                 if (!world.isClientSide()) {
+                    onThrow(world, entity, stack, index);
                     entity.stopUsingItem();
                 }
             }
