@@ -2,10 +2,10 @@ plugins {
     alias(libs.plugins.moddev) 
 } 
  
-val mod_id = "lrtactical" 
-version = "1.0.0" 
-group = "me.xjqsh.lrtactical" 
- 
+val mod_id = providers.gradleProperty("mod_id").get()
+version = providers.gradleProperty("mod_version").get()
+group = providers.gradleProperty("mod_group_id").get()
+
 repositories { 
     mavenLocal() 
     mavenCentral() 
@@ -111,45 +111,22 @@ neoForge {
 sourceSets["main"].resources.srcDir("src/generated/resources") 
  
 dependencies { 
-    // TACZ (Placeholder or local) 
-    // implementation(libs.tacz) 
-    // Unofficial TaCZ 1.21.1 Port 
+
     implementation("curse.maven:tacz-1-21-1-1353462:7374584") 
- 
-    // implementation(libs.org.apache.commons.math3) 
-    // jarJar(libs.org.apache.commons.math3) 
+
     compileOnly(libs.org.apache.commons.math3) 
      
-    // implementation(libs.luaj.core) 
-    // jarJar(libs.luaj.core) 
     compileOnly(libs.luaj.core) 
-     
-    // implementation(libs.luaj.jse) 
-    // jarJar(libs.luaj.jse) 
     compileOnly(libs.luaj.jse) 
-     
-    // implementation(libs.org.apache.bcel) 
-    // jarJar(libs.org.apache.bcel) 
+
     compileOnly(libs.org.apache.bcel) 
- 
     compileOnly(libs.cloth.config) 
     compileOnly(libs.player.animation.lib) 
-     
-    // implementation(libs.maven.modrinth.sodium) 
-    // implementation(libs.maven.modrinth.iris) 
-     
-    // compileOnly(libs.maven.modrinth.carry.on) 
-    // compileOnly(libs.maven.modrinth.shoulder.surfing.reloaded) 
-     
+
     compileOnly(libs.jei.common.api) 
     compileOnly(libs.jei.neoforge.api) 
     runtimeOnly(libs.jei.neoforge) 
-     
-    // compileOnly(libs.curse.maven.framework) 
-    // compileOnly(libs.curse.maven.controllable) 
-     
-    // implementation(libs.dev.latvian.mods.kubejs.neoforge) 
-    // compileOnly(libs.dev.latvian.mods.rhino) 
+
 } 
  
 java { 
@@ -159,4 +136,25 @@ java {
 tasks.withType<JavaCompile> { 
     options.encoding = "UTF-8" 
     options.release.set(21) 
+}
+
+tasks.withType<ProcessResources>().configureEach {
+    val replaceProperties = mapOf(
+            "minecraft_version" to providers.gradleProperty("minecraft_version").get(),
+            "minecraft_version_range" to providers.gradleProperty("minecraft_version_range").get(),
+            "neoforge_version" to providers.gradleProperty("neoforge_version").get(),
+            "neoforge_version_range" to providers.gradleProperty("neoforge_version_range").get(),
+            "loader_version_range" to providers.gradleProperty("loader_version_range").get(),
+            "mod_id" to mod_id,
+            "mod_name" to providers.gradleProperty("mod_name").get(),
+            "mod_license" to providers.gradleProperty("mod_license").get(),
+            "mod_version" to version,
+            "mod_authors" to providers.gradleProperty("mod_authors").get(),
+            "mod_description" to providers.gradleProperty("mod_description").get()
+    )
+    inputs.properties(replaceProperties)
+
+    filesMatching("**/neoforge.mods.toml") {
+        expand(replaceProperties)
+    }
 }
