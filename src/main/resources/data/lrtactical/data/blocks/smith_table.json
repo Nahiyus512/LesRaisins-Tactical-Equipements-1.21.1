@@ -13,9 +13,11 @@
       "name": "lrtactical.type.melee.name",
       // tab的图标，可以指定任意一个物品作为图标
       "icon": {
-        "item": "lrtactical:melee",
-        "nbt": {
-          "MeleeWeaponId": "lrtactical:karambit"
+        "id": "lrtactical:melee",
+        "components": {
+          "minecraft:custom_data": {
+            "MeleeWeaponId": "lrtactical:karambit"
+          }
         }
       }
     },
@@ -26,9 +28,11 @@
       "name": "lrtactical.type.throwable.name",
       // tab的图标，可以指定任意一个物品作为图标
       "icon": {
-        "item": "lrtactical:throwable",
-        "nbt": {
-          "ThrowableId": "lrtactical:flash_grenade"
+        "id": "lrtactical:throwable",
+        "components": {
+          "minecraft:custom_data": {
+            "ThrowableId": "lrtactical:flash_grenade"
+          }
         }
       }
     },
@@ -39,7 +43,7 @@
       "name": "lrtactical.type.misc.name",
       // tab的图标，可以指定任意一个物品作为图标
       "icon": {
-        "item": "lrtactical:flash_shield"
+        "id": "lrtactical:flash_shield"
       }
     }
   ]

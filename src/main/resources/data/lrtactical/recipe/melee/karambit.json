@@ -3,27 +3,21 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "c:ingots/iron"
+      },
+      "count": 4
+    },
+    {
+      "item": {
+        "tag": "c:leathers"
       },
       "count": 2
     },
     {
       "item": {
-        "tag": "forge:leather"
+        "tag": "c:gems/lapis"
       },
-      "count": 1
-    },
-    {
-      "item": {
-        "tag": "minecraft:planks"
-      },
-      "count": 6
-    },
-    {
-      "item": {
-        "tag": "forge:gems/quartz"
-      },
-      "count": 1
+      "count": 2
     }
   ],
   "result": {
@@ -34,7 +28,7 @@
       "count": 1,
       "components": {
         "minecraft:custom_data": {
-          "MeleeWeaponId": "lrtactical:baseball_bat"
+          "MeleeWeaponId": "lrtactical:karambit"
         }
       }
     }

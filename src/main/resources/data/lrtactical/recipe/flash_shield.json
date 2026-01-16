@@ -21,7 +21,7 @@
     },
     {
       "item": {
-        "tag": "forge:rods/blaze"
+        "tag": "c:rods/blaze"
       },
       "count": 2
     }
@@ -30,7 +30,8 @@
     "type": "custom",
     "group": "lrtactical:misc",
     "item": {
-      "item": "lrtactical:flash_shield"
+      "id": "lrtactical:flash_shield",
+      "count": 1
     }
   }
 }

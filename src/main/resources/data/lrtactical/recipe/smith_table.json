@@ -1,9 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
   "result": {
-    "item": "tacz:workbench_b",
-    "nbt": {
-      "BlockId": "lrtactical:smith_table"
+    "id": "tacz:workbench_b",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "BlockId": "lrtactical:smith_table"
+      }
     }
   },
   "pattern": [
@@ -16,7 +19,7 @@
       "tag": "minecraft:logs"
     },
     "I": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     },
     "B": {
       "item": "minecraft:iron_block"

@@ -3,19 +3,19 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "c:ingots/iron"
       },
-      "count": 1
+      "count": 2
     },
     {
       "item": {
-        "tag": "forge:dusts/glowstone"
+        "item": "minecraft:blaze_powder"
       },
       "count": 3
     },
     {
       "item": {
-        "tag": "forge:gems/quartz"
+        "item": "minecraft:dragon_breath"
       },
       "count": 1
     }
@@ -24,11 +24,13 @@
     "type": "custom",
     "group": "lrtactical:throwable",
     "item": {
-      "item": "lrtactical:throwable",
-      "nbt": {
-        "ThrowableId": "lrtactical:flash_grenade"
-      },
-      "count" : 2
+      "id": "lrtactical:throwable",
+      "count": 3,
+      "components": {
+        "minecraft:custom_data": {
+          "ThrowableId": "lrtactical:molotov"
+        }
+      }
     }
   }
 }

@@ -3,21 +3,21 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "c:ingots/iron"
       },
-      "count": 4
+      "count": 5
     },
     {
       "item": {
-        "tag": "forge:leather"
+        "tag": "c:leathers"
       },
       "count": 2
     },
     {
       "item": {
-        "tag": "forge:gems/lapis"
+        "tag": "minecraft:logs"
       },
-      "count": 2
+      "count": 1
     }
   ],
   "result": {
@@ -28,7 +28,7 @@
       "count": 1,
       "components": {
         "minecraft:custom_data": {
-          "MeleeWeaponId": "lrtactical:karambit"
+          "MeleeWeaponId": "lrtactical:dagger"
         }
       }
     }
