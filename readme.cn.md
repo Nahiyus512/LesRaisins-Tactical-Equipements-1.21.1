@@ -1,10 +1,7 @@
-<!-- Language Switcher -->
-<p align="right">
-  <a href="README.md">English</a> | 
-  <a href="README.cn.md"><strong>中文</strong></a>
-</p>
+<!-- Top language switch -->
+[**English**](README.md) | [**中文**](README.cn.md)
 
-# 非官方 TaCZ 1.21.1 NeoForge 移植版
+# 非官方 lr-tactical 1.21.1 NeoForge 移植版
 [![Modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/mod/lr-tactical-1.21.1)
 [![CurseForge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg)](N/A)
 [![GitHub](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/github_vector.svg)](https://github.com/Nahiyus512/LesRaisins-Tactical-Equipements-1.21.1)
