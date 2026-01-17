@@ -8,6 +8,19 @@ import net.minecraft.network.chat.Component;
 
 public class BasicClothConfig {
     public static void init(ConfigBuilder root, ConfigEntryBuilder entryBuilder) {
+        root.getOrCreateCategory(Component.translatable("config.lrtactical.hud"))
+                .addEntry(
+                        entryBuilder.startEnumSelector(
+                                        Component.translatable("config.lrtactical.hud.style"),
+                                        ClientConfig.HudStyle.class,
+                                        ClientConfig.HUD_STYLE.get()
+                                )
+                                .setDefaultValue(ClientConfig.HudStyle.LINE)
+                                .setEnumNameProvider(style -> Component.translatable("config.lrtactical.hud.style." + style.name()))
+                                .setSaveConsumer(ClientConfig.HUD_STYLE::set)
+                                .build()
+                );
+
         root.getOrCreateCategory(Component.translatable("config.lrtactical.effect"))
             .addEntry(
                 entryBuilder.startBooleanToggle(Component.translatable("config.lrtactical.effect.blackflash"), ClientConfig.BLACK_FLASH.get())
