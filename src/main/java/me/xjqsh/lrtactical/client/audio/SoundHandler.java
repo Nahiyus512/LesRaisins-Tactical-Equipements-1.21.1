@@ -189,11 +189,6 @@ public class SoundHandler
             event.getChannel().setVolume(this.soundVolumes.get(event.getSound()));
         }
 
-        ResourceLocation loc = event.getSound().getLocation();
-        if (loc.equals(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.generic.explode"))) {
-            event.getChannel().setVolume(0.0F);
-        }
-
         if (Minecraft.getInstance().player != null) {
             MobEffectInstance effect = Minecraft.getInstance().player.getEffect(ModEffects.DEAFENED);
             if(effect != null) {
