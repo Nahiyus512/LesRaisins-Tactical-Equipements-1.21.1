@@ -54,12 +54,8 @@ public class UsingProgressOverlay {
             lastTickCount = tickCount;
         }
 
-        int screenWidth = guiGraphics.guiWidth();
-        int screenHeight = guiGraphics.guiHeight();
-        int crosshairX = (screenWidth - 15) / 2;
-        int crosshairY = (screenHeight - 15) / 2;
-        float cx = crosshairX + 7.5f;
-        float cy = crosshairY + 7.5f;
+        float cx = guiGraphics.guiWidth() / 2f;
+        float cy = guiGraphics.guiHeight() / 2f;
 
         ItemStack useStack = player.getUseItem();
         float progress = -1f;
@@ -132,7 +128,7 @@ public class UsingProgressOverlay {
         if (cookProgress >= 0f) {
             float cookOuter = outerRadius;
             float cookInner = innerRadius;
-            int cookColor = argb(0xFF, 0xFF, 0x57, 0x57);
+            int cookColor = argb(190, 0xF2, 0x9D, 0x79);
             drawRingArc(
                     guiGraphics,
                     cx,
