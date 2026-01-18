@@ -55,6 +55,13 @@ public class BasicClothConfig {
                                 .build()
                 )
                 .addEntry(
+                        entryBuilder.startBooleanToggle(Component.translatable("config.lrtactical.melee.offhand_item"), ClientConfig.ENABLE_MELEE_OFFHAND_ITEM.get())
+                                .setDefaultValue(true)
+                                .setTooltip(Component.translatable("config.lrtactical.melee.offhand_item.desc"))
+                                .setSaveConsumer(ClientConfig.ENABLE_MELEE_OFFHAND_ITEM::set)
+                                .build()
+                )
+                .addEntry(
                         entryBuilder.startIntField(Component.translatable("config.lrtactical.melee.max_target"), CommonConfig.MELEE_IGNORE_INVULNERABLE_TICK_THRESHOLD.get())
                                 .setDefaultValue(32)
                                 .setMin(1)

@@ -2,7 +2,9 @@ package me.xjqsh.lrtactical.client.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.tacz.guns.client.renderer.item.AnimateGeoItemRenderer;
+import me.xjqsh.lrtactical.api.item.IMeleeWeapon;
 import me.xjqsh.lrtactical.api.melee.MeleeAction;
+import me.xjqsh.lrtactical.config.ClientConfig;
 import me.xjqsh.lrtactical.capability.CombatProperties;
 import me.xjqsh.lrtactical.client.renderer.item.MeleeItemRenderer;
 import me.xjqsh.lrtactical.init.ModCapabilities;
@@ -40,6 +42,13 @@ public class AttackKeys {
             KeyModifier.NONE,
             InputConstants.Type.MOUSE,
             GLFW.GLFW_MOUSE_BUTTON_RIGHT,
+            "key.category.lrtactical");
+
+    public static final KeyMapping USE_OFFHAND_ITEM = new KeyMapping("key.lrtactical.use_offhand.desc",
+            KeyConflictContext.IN_GAME,
+            KeyModifier.NONE,
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_LEFT_SHIFT,
             "key.category.lrtactical");
 
     @SubscribeEvent
@@ -96,6 +105,9 @@ public class AttackKeys {
         ItemStack stack = player.getMainHandItem();
 
         while (SPECIAL_ATTACK.consumeClick()) {
+            if (ClientConfig.ENABLE_MELEE_OFFHAND_ITEM.get() && stack.getItem() instanceof IMeleeWeapon && USE_OFFHAND_ITEM.isDown()) {
+                continue;
+            }
             var combatProperties = player.getData(ModCapabilities.COMBAT_PROPERTIES);
             if (combatProperties.preAttack(MeleeAction.RIGHT, player.getEyePosition(), player.getLookAngle())) {
                 // mc.gameMode.ensureHasSentCarriedItem();

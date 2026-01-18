@@ -42,12 +42,15 @@
   "config.lrtactical.melee": "Melee",
   "config.lrtactical.melee.durability": "Consume Durability",
   "config.lrtactical.melee.durability.desc": "If enabled, melee weapons will consume durability when used (if it will).",
+  "config.lrtactical.melee.offhand_item": "Enable Offhand Items",
+  "config.lrtactical.melee.offhand_item.desc": "If enabled, you can render and use offhand items while holding this mod's melee weapons. Hold the \"Use Offhand Item\" key and right click to use offhand (keybind can be changed).",
   "config.lrtactical.melee.max_target": "Max Target Count",
   "config.lrtactical.melee.max_target.desc": "The maximum number of targets that can be hit by a single melee attack.",
 
   "key.category.lrtactical": "LesRaisins Tactical",
   "key.lrtactical.normal_attack.desc": "Normal Attack",
   "key.lrtactical.sp_attack.desc": "Special Attack/Action",
+  "key.lrtactical.use_offhand.desc": "Use Offhand Item",
 
   "pack.lrtactical.default_pack.name": "LesRaisins Tactical",
   "pack.lrtactical.default_pack.desc": "Default Pack for LesRaisins Tactical",

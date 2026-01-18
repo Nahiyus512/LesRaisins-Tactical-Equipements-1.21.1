@@ -42,12 +42,15 @@
   "config.lrtactical.melee": "近战",
   "config.lrtactical.melee.durability": "是否消耗耐久",
   "config.lrtactical.melee.durability.desc": "如果启用，近战武器在使用时将消耗耐久（如果它有的话）。",
+  "config.lrtactical.melee.offhand_item": "启用副手物品",
+  "config.lrtactical.melee.offhand_item.desc": "启用后，手持本模组近战武器时可显示并使用副手物品。按住“使用副手物品”键并右键使用副手物品（按键可在设置中修改）。",
   "config.lrtactical.melee.max_target": "最大目标数量",
   "config.lrtactical.melee.max_target.desc": "单次近战攻击可以击中的最大目标数量。",
 
   "key.category.lrtactical": "LesRaisins 战术装备",
   "key.lrtactical.normal_attack.desc": "普通攻击",
   "key.lrtactical.sp_attack.desc": "重击/特殊动作",
+  "key.lrtactical.use_offhand.desc": "使用副手物品",
 
   "pack.lrtactical.default_pack.name": "LesRaisins 战术装备",
   "pack.lrtactical.default_pack.desc": "绿葡萄战术装备默认包",

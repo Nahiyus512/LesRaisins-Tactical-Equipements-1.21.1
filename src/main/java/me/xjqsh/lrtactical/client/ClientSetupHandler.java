@@ -60,6 +60,7 @@ public class ClientSetupHandler {
     public static void onClientSetup(RegisterKeyMappingsEvent event) {
         event.register(AttackKeys.NORMAL_ATTACK);
         event.register(AttackKeys.SPECIAL_ATTACK);
+        event.register(AttackKeys.USE_OFFHAND_ITEM);
     }
 
     @SubscribeEvent

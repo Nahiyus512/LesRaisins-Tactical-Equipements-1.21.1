@@ -10,6 +10,8 @@ import com.tacz.guns.client.input.InteractKey;
 import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.collision.OBB;
 import me.xjqsh.lrtactical.api.item.ICustomItem;
+import me.xjqsh.lrtactical.api.item.IMeleeWeapon;
+import me.xjqsh.lrtactical.client.input.AttackKeys;
 import me.xjqsh.lrtactical.client.renderer.item.FlashShieldItemRenderer;
 import me.xjqsh.lrtactical.client.renderer.item.MeleeItemRenderer;
 import me.xjqsh.lrtactical.config.ClientConfig;
@@ -102,6 +104,9 @@ public class ClientEventsHandler {
         }
         if (event.getHand() == InteractionHand.OFF_HAND) {
             ItemStack stack = KeepingItemRenderer.getRenderer().getCurrentItem();
+            if (ClientConfig.ENABLE_MELEE_OFFHAND_ITEM.get() && stack.getItem() instanceof IMeleeWeapon) {
+                return;
+            }
             if (stack.getItem() instanceof ICustomItem item && item.blockOffhandRendering(stack)) {
                 event.setCanceled(true);
             }
@@ -164,6 +169,12 @@ public class ClientEventsHandler {
 
         // 只要主手有枪，那么禁止交互
         ItemStack itemInHand = player.getItemInHand(InteractionHand.MAIN_HAND);
+        if (event.isUseItem()
+                && ClientConfig.ENABLE_MELEE_OFFHAND_ITEM.get()
+                && itemInHand.getItem() instanceof IMeleeWeapon
+                && AttackKeys.USE_OFFHAND_ITEM.isDown()) {
+            return;
+        }
         if (itemInHand.getItem() instanceof ICustomItem customItem) {
             boolean flag = (event.isAttack() && customItem.shouldBlockAttack())
                     || (event.isUseItem() && customItem.shouldBlockUse())

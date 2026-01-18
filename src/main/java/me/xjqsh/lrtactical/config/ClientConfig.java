@@ -7,6 +7,7 @@ public class ClientConfig {
     public static ModConfigSpec.BooleanValue BLACK_FLASH;
     public static ModConfigSpec.DoubleValue EXPLODE_SCREEN_SHAKE_MULTIPLIER;
     public static ModConfigSpec.EnumValue<HudStyle> HUD_STYLE;
+    public static ModConfigSpec.BooleanValue ENABLE_MELEE_OFFHAND_ITEM;
 
     public enum HudStyle {
         RING,
@@ -23,6 +24,9 @@ public class ClientConfig {
         HUD_STYLE = builder
                 .comment("HUD style for combat/use progress display")
                 .defineEnum("hudStyle", HudStyle.LINE);
+        ENABLE_MELEE_OFFHAND_ITEM = builder
+                .comment("Allow using/rendering offhand items while holding LRTactical melee weapons. Hold the configured key + right click to use offhand.")
+                .define("enableMeleeOffhandItem", true);
         SPEC = builder.build();
         return SPEC;
     }
