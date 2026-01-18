@@ -3,7 +3,6 @@ package me.xjqsh.lrtactical.config;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ClientConfig {
-    public static ModConfigSpec SPEC;
     public static ModConfigSpec.BooleanValue BLACK_FLASH;
     public static ModConfigSpec.DoubleValue EXPLODE_SCREEN_SHAKE_MULTIPLIER;
     public static ModConfigSpec.EnumValue<HudStyle> HUD_STYLE;
@@ -23,7 +22,6 @@ public class ClientConfig {
         HUD_STYLE = builder
                 .comment("HUD style for combat/use progress display")
                 .defineEnum("hudStyle", HudStyle.LINE);
-        SPEC = builder.build();
-        return SPEC;
+        return builder.build();
     }
 }
