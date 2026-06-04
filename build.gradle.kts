@@ -8,13 +8,14 @@ group = providers.gradleProperty("mod_group_id").get()
 
 repositories { 
     mavenLocal() 
-    mavenCentral() 
-    maven("https://jitpack.io") { 
-        content { 
-            includeGroup("com.github.rtyley") 
-            includeGroup("com.github.FiguraMC.luaj") 
-        } 
-    } 
+    mavenCentral()
+    maven("https://jitpack.io") {
+        content {
+            includeGroup("com.github.rtyley")
+            includeGroup("com.github.FiguraMC.luaj")
+            includeGroup("com.github.mcmodderanchor")
+        }
+    }
     maven("https://maven.shedaniel.me") 
     maven("https://maven.kosmx.dev") 
     maven("https://maven.blamejared.com") 
@@ -110,9 +111,11 @@ neoForge {
  
 sourceSets["main"].resources.srcDir("src/generated/resources") 
  
-dependencies { 
+dependencies {
+    implementation(libs.com.github.mcmodderanchor.simplebedrockmodel)
+    compileOnly(libs.com.maydaymemory.mae)
 
-    implementation("curse.maven:tacz-1-21-1-1353462:7374584") 
+    implementation("curse.maven:tacz-1-21-1-1353462:8167430")
 
     compileOnly(libs.org.apache.commons.math3) 
      
