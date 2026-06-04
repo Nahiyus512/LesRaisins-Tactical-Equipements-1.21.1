@@ -177,10 +177,13 @@ public class SoundHandler
     public void onPlaySoundSource(PlaySoundSourceEvent event)
     {
         if (event.getSound() instanceof SoundMuted muted && muted.parent instanceof GunSoundInstance gunSoundInstance) {
-            SoundBuffer soundBuffer = gunSoundInstance.getSoundBuffer();
-            if (soundBuffer != null) {
-                event.getChannel().attachStaticBuffer(soundBuffer);
-                event.getChannel().play();
+            ResourceLocation registryName = gunSoundInstance.getRegistryName();
+            if (registryName != null) {
+                Sound sound = gunSoundInstance.getSound();
+                if (sound != null) {
+                    event.getChannel().setVolume(muted.getVolume());
+                    event.getChannel().setPitch(gunSoundInstance.getPitch());
+                }
             }
         }
 
