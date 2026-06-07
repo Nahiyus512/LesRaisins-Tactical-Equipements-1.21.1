@@ -109,22 +109,28 @@ neoForge {
     } 
 } 
  
-sourceSets["main"].resources.srcDir("src/generated/resources") 
- 
+sourceSets["main"].resources.srcDir("src/generated/resources")
+
+configurations.all {
+    exclude(group = "curse.maven", module = "playeranimator-658587")
+}
+
 dependencies {
     implementation(libs.com.github.mcmodderanchor.simplebedrockmodel)
     compileOnly(libs.com.maydaymemory.mae)
 
-    implementation("curse.maven:tacz-1-21-1-1353462:8167430")
+    implementation("curse.maven:tacz-1-21-1-1353462:8167430") {
+        exclude(group = "curse.maven", module = "playeranimator-658587")
+    }
 
-    compileOnly(libs.org.apache.commons.math3) 
-     
-    compileOnly(libs.luaj.core) 
-    compileOnly(libs.luaj.jse) 
+    compileOnly(libs.org.apache.commons.math3)
 
-    compileOnly(libs.org.apache.bcel) 
-    compileOnly(libs.cloth.config) 
-    compileOnly(libs.player.animation.lib) 
+    compileOnly(libs.luaj.core)
+    compileOnly(libs.luaj.jse)
+
+    compileOnly(libs.org.apache.bcel)
+    compileOnly(libs.cloth.config)
+    implementation(libs.player.animation.lib)
 
     compileOnly(libs.jei.common.api) 
     compileOnly(libs.jei.neoforge.api) 
