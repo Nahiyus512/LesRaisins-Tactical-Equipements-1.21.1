@@ -127,14 +127,14 @@ public class EffectCloudThrowableData extends ThrowableData {
     }
 
     public record EffectData(
-        MobEffect type,
+        Holder<MobEffect> type,
         int duration,
         int amplifier,
         boolean visible,
         boolean showIcon
     ) {
         public MobEffectInstance toInstance() {
-            return new MobEffectInstance(Holder.direct(type), duration, amplifier, false, visible, showIcon);
+            return new MobEffectInstance(type, duration, amplifier, false, visible, showIcon);
         }
     }
 
@@ -144,7 +144,7 @@ public class EffectCloudThrowableData extends ThrowableData {
             if (ele.isJsonObject()) {
                 var obj = ele.getAsJsonObject();
                 ResourceLocation id = ctx.deserialize(obj.get("type"), ResourceLocation.class);
-                MobEffect type1 = BuiltInRegistries.MOB_EFFECT.get(id);
+                Holder<MobEffect> type1 = BuiltInRegistries.MOB_EFFECT.getHolder(id).orElse(null);
                 if (type1 == null) {
                     throw new JsonParseException("Unknown effect type: " + id);
                 }

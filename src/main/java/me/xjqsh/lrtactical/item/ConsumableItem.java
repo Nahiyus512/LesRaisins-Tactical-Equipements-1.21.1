@@ -21,7 +21,6 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
@@ -40,7 +39,7 @@ import java.util.function.Consumer;
 
 public class ConsumableItem extends Item implements IAnimationItem, IConsumable {
     public ConsumableItem() {
-        super(new Properties().stacksTo(1));
+        super(new Properties().stacksTo(1).durability(1));
     }
 
     @Override
@@ -201,7 +200,12 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
     private void consumeAfterUse(ItemStack stack, LivingEntity entity, ConsumableIndex index) {
         ConsumableData data = index.getData();
         if (data.hasDurability()) {
-            stack.hurtAndBreak(data.getDurabilityDamage(), entity, EquipmentSlot.MAINHAND);
+            int newDamage = stack.getDamageValue() + data.getDurabilityDamage();
+            if (newDamage >= data.getMaxDurability()) {
+                stack.shrink(1);
+            } else {
+                stack.setDamageValue(newDamage);
+            }
         } else {
             stack.shrink(1);
         }
@@ -220,14 +224,13 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
     }
 
     private void removeEffectsByCategory(LivingEntity entity, MobEffectCategory category) {
-        List<MobEffect> effects = entity.getActiveEffects().stream()
+        List<Holder<MobEffect>> effects = entity.getActiveEffects().stream()
                 .map(MobEffectInstance::getEffect)
                 .filter(effect -> effect.value().getCategory() == category)
-                .map(e -> (MobEffect) e.value())
                 .toList();
 
-        for (MobEffect effect : effects) {
-            entity.removeEffect(Holder.direct(effect));
+        for (Holder<MobEffect> effect : effects) {
+            entity.removeEffect(effect);
         }
     }
 

@@ -100,6 +100,10 @@ public class MeleeWeaponIndex<T extends MeleeWeaponData> implements ICustomItemI
             iMeleeWeapon.setId(stack, this.getId());
         }
         trySetEnchantableComponent(stack, data.getEnchantmentValue());
+        if (data.getMaxDurability() > 0) {
+            stack.set(DataComponents.MAX_DAMAGE, data.getMaxDurability());
+            stack.set(DataComponents.DAMAGE, 0);
+        }
         return stack;
     }
 

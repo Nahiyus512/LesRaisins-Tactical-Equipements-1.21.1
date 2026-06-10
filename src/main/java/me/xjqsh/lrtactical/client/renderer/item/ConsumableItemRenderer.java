@@ -131,7 +131,11 @@ public class ConsumableItemRenderer extends AnimateGeoItemRenderer<BedrockAnimat
         if (ctx.firstPerson()) {
             return;
         }
-        LrTacticalAPI.getConsumableDisplay(stack).ifPresentOrElse(display -> {
+        // 物品已损坏或无有效索引时不渲染，避免紫黑棋盘错误纹理
+        if (stack.isEmpty() || LrTacticalAPI.getConsumableDisplay(stack).isEmpty()) {
+            return;
+        }
+        LrTacticalAPI.getConsumableDisplay(stack).ifPresent(display -> {
             BedrockAnimatedModel model = display.getModel();
             if (ctx == GUI && display.getSlotTexture() != null) {
                 poseStack.translate(0.5, 1.5, 0.5);
@@ -160,11 +164,6 @@ public class ConsumableItemRenderer extends AnimateGeoItemRenderer<BedrockAnimat
                 }
             }
             poseStack.popPose();
-        }, () -> {
-            poseStack.translate(0.5, 1.5, 0.5);
-            poseStack.mulPose(Axis.ZN.rotationDegrees(180));
-            VertexConsumer buffer = bufferSource.getBuffer(RenderType.entityTranslucent(MissingTextureAtlasSprite.getLocation()));
-            SLOT_MODEL.renderToBuffer(poseStack, buffer, light, overlay, 0xFFFFFFFF);
         });
     }
 }

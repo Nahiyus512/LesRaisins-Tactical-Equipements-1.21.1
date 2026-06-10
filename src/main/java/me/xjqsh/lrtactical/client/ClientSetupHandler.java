@@ -44,6 +44,7 @@ public class ClientSetupHandler {
     @SubscribeEvent
     public static void registerItemDecorations(RegisterItemDecorationsEvent event) {
         event.register(ModItems.THROWABLE.get(), new CoolDownDecorations());
+        event.register(ModItems.CONSUMABLE.get(), new CoolDownDecorations());
     }
 
     @SubscribeEvent

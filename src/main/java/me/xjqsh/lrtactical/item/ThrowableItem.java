@@ -101,7 +101,9 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
                 cap.addCooldown(id, index.getData().getCooldown());
             }
         }
-        stack.shrink(1);
+        if (!(entity instanceof Player player) || !player.getAbilities().instabuild) {
+            stack.shrink(1);
+        }
 
         if (index.getData() instanceof ExplodeThrowableData explode && explode.getExplode().isRemoteDetonation()) {
             ItemStack detonatorStack = new ItemStack(ModItems.DETONATOR.get());
