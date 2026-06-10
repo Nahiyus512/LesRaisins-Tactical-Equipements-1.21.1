@@ -106,4 +106,25 @@ public class AttackKeys {
             }
         }
     }
+
+    @SubscribeEvent
+    public static void onSpAttackKey(InputEvent.Key event) {
+        var mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null || player.isSpectator() || mc.gameMode == null) {
+            return;
+        }
+        ItemStack stack = player.getMainHandItem();
+
+        while (SPECIAL_ATTACK.consumeClick()) {
+            var combatProperties = player.getData(ModCapabilities.COMBAT_PROPERTIES);
+            if (combatProperties.preAttack(MeleeAction.RIGHT, player.getEyePosition(), player.getLookAngle())) {
+                // mc.gameMode.ensureHasSentCarriedItem();
+                if (IClientItemExtensions.of(stack).getCustomRenderer() instanceof AnimateGeoItemRenderer renderer) {
+                    renderer.triggerAnimation(stack, "attack_right");
+                    player.swing(InteractionHand.MAIN_HAND);
+                }
+            }
+        }
+    }
 }

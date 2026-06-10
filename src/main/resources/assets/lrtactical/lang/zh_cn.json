@@ -1,7 +1,11 @@
 {
-  "item_group.lrtactical.throwable": "LesRaisins - 投掷物",
+  "item_group.lrtactical.throwable": "LesRaisins - 投掷武器",
+  "item_group.lrtactical.consumable": "LesRaisins - 消耗品",
   "item_group.lrtactical.melee": "LesRaisins - 近战武器",
 
+  "item.lrtactical.blood_pack": "血包",
+  "item.lrtactical.condensed_milk": "炼乳",
+  "item.lrtactical.ibuprofen": "布洛芬",
   "item.lrtactical.m67": "M67 手雷",
   "item.lrtactical.rgn": "RGN 手雷",
   "item.lrtactical.smoke_grenade": "M18 烟雾弹",
@@ -19,8 +23,12 @@
   "lrtactical.block.smith_table.name": "锻刀台",
   "lrtactical.block.smith_table.desc": "锻刀大赛冠军",
   "lrtactical.type.melee.name": "近战武器",
+  "lrtactical.type.consumable.name": "消耗品",
   "lrtactical.type.throwable.name": "投掷武器",
   "lrtactical.type.misc.name": "杂项",
+  "tooltip.lrtactical.consumable.heal": "回复生命: %s",
+  "tooltip.lrtactical.consumable.food": "饥饿: %s, 饱和度: %s",
+  "overlay.lrtactical.consumable.toggle_hint": "按右键取消",
 
   "effect.lrtactical.blinded": "致盲",
   "effect.lrtactical.deafened": "失聪",

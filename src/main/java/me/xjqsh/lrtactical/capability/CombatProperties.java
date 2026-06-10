@@ -33,6 +33,8 @@ public class CombatProperties {
     private int drawingTick = 0;
     private boolean preparingAttack = false;
     private int preparingWindowTick = 0;
+    /** TOGGLE消耗品累计使用tick数 */
+    private int toggleUseTicks = 0;
 
     public CombatProperties(Player entity) {
         this.entity = entity;
@@ -98,6 +100,14 @@ public class CombatProperties {
         return drawingTick > 0;
     }
 
+    public int getToggleUseTicks() {
+        return toggleUseTicks;
+    }
+
+    public void setToggleUseTicks(int ticks) {
+        this.toggleUseTicks = ticks;
+    }
+
     public void reset(ICustomItem customItem, ItemStack last) {
         lastItem = entity.getMainHandItem().copy();
         int newCoolDown = customItem.getDrawTime(entity.getMainHandItem());
@@ -109,6 +119,7 @@ public class CombatProperties {
         drawingTick = newCoolDown;
         preparingAttack = false;
         preparingWindowTick = 0;
+        toggleUseTicks = 0;
     }
 
     public boolean preAttack(MeleeAction action, Vec3 origin, Vec3 direction) {

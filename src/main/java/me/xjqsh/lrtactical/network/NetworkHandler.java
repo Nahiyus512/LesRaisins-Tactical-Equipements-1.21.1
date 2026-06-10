@@ -33,6 +33,8 @@ public class NetworkHandler {
         registrar.playToClient(SShieldDisable.TYPE, SShieldDisable.STREAM_CODEC, SShieldDisable::handle);
         registrar.playToClient(SShakeScreenMessage.TYPE, SShakeScreenMessage.STREAM_CODEC, SShakeScreenMessage::handle);
         registrar.playToClient(SSplashParticle.TYPE, SSplashParticle.STREAM_CODEC, SSplashParticle::handle);
+        // Client -> Server
+        registrar.playToServer(CCancelToggleConsumableUse.TYPE, CCancelToggleConsumableUse.STREAM_CODEC, CCancelToggleConsumableUse::handle);
     }
 
     public static void sendToClientPlayer(CustomPacketPayload message, Player player) {
