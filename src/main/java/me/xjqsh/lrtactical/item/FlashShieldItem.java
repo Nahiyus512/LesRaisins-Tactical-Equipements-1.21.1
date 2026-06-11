@@ -96,7 +96,7 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
 
     @Override
     public boolean shouldBlockUse() {
-        return false;
+        return true;
     }
 
     @Override

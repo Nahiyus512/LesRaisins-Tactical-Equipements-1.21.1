@@ -38,6 +38,21 @@
     },
     {
       // tab的id，在配方的result中指定
+      "id": "lrtactical:consumable",
+      // tab的名称，将会显示在gui中
+      "name": "lrtactical.type.consumable.name",
+      // tab的图标，可以指定任意一个物品作为图标
+      "icon": {
+        "id": "lrtactical:consumable",
+        "components": {
+          "minecraft:custom_data": {
+            "ConsumableId": "lrtactical:blood_pack"
+          }
+        }
+      }
+    },
+    {
+      // tab的id，在配方的result中指定
       "id": "lrtactical:misc",
       // tab的名称，将会显示在gui中
       "name": "lrtactical.type.misc.name",
