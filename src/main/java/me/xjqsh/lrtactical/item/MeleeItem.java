@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 
 public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
     public MeleeItem() {
-        super(new Properties().stacksTo(1).setNoRepair().durability(1));
+        super(new Properties().stacksTo(1).setNoRepair());
     }
 
     // @Override
