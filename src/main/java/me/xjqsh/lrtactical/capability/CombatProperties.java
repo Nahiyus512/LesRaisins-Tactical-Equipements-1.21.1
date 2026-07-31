@@ -8,6 +8,7 @@ import me.xjqsh.lrtactical.api.melee.MeleeAction;
 import me.xjqsh.lrtactical.network.NetworkHandler;
 import me.xjqsh.lrtactical.network.message.CMeleeAttackRequest;
 import me.xjqsh.lrtactical.network.message.CPrepareMeleeAttack;
+import me.xjqsh.lrtactical.network.message.SResetMeleeSyncMessage;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.sounds.SoundEvent;
@@ -35,7 +36,6 @@ public class CombatProperties {
     private int drawingTick = 0;
     private boolean preparingAttack = false;
     private int preparingAttackCombo = 0;
-    private int preparingWindowTick = 0;
     private final Map<MeleeAction, Integer> actionCounts = new EnumMap<>(MeleeAction.class);
     /** TOGGLE消耗品累计使用tick数 */
     private int toggleUseTicks = 0;
@@ -77,11 +77,10 @@ public class CombatProperties {
             if (entity.getMainHandItem().getItem() instanceof IMeleeWeapon weapon && !weapon.canSprintingAttack()) {
                 entity.setSprinting(false);
             }
-        }
-
-        if (preparingWindowTick > 0) {
-            preparingWindowTick--;
-            if (preparingWindowTick <= 0) {
+            if (coolDownTick <= 0) {
+                if (!entity.level().isClientSide() && preparingAttack) {
+                    forceResetMeleeSync("melee attack request timed out");
+                }
                 preparingAttack = false;
             }
         }
@@ -123,20 +122,49 @@ public class CombatProperties {
         drawingTick = newCoolDown;
         preparingAttack = false;
         preparingAttackCombo = 0;
-        preparingWindowTick = 0;
         actionCounts.clear();
         delayedActions.clear();
         toggleUseTicks = 0;
     }
 
+    public void resetMeleeSync() {
+        coolDownTick = 0;
+        lastMaxTick = 0;
+        preparingAttack = false;
+        preparingAttackCombo = 0;
+        actionCounts.clear();
+        delayedActions.clear();
+    }
+
     public boolean preAttack(MeleeAction action, Vec3 origin, Vec3 direction) {
+        return preAttack(action, -1, origin, direction);
+    }
+
+    public boolean preAttack(MeleeAction action, int requestedCombo, Vec3 origin, Vec3 direction) {
         ItemStack stack = entity.getMainHandItem();
-        if (entity.getMainHandItem().getItem() instanceof IMeleeWeapon weapon && coolDownTick <= 0) {
-            if (!weapon.canAttack(entity, stack, action)) {
+        if (!(stack.getItem() instanceof IMeleeWeapon weapon)) {
+            return false;
+        }
+        if (!entity.level().isClientSide()) {
+            if (preparingAttack || coolDownTick > 1) {
                 return false;
             }
+            // Client and server ticks can be one tick apart after switching items.
+            // The client only sends this packet after its draw cooldown reaches zero.
+            coolDownTick = 0;
+        } else if (coolDownTick > 0) {
+            return false;
+        }
+        if (!weapon.canAttack(entity, stack, action)) {
+            return false;
+        }
 
-            int combo = actionCounts.getOrDefault(action, 0);
+            int combo = entity.level().isClientSide()
+                    ? actionCounts.getOrDefault(action, 0)
+                    : requestedCombo;
+            if (combo < 0) {
+                return false;
+            }
             actionCounts.put(action, combo + 1);
 
             coolDownTick = weapon.getAttackCoolDown(stack, action, combo);
@@ -146,12 +174,11 @@ public class CombatProperties {
                 // 服务端，准备进行攻击
                 this.preparingAttack = true;
                 this.preparingAttackCombo = combo;
-                this.preparingWindowTick = Math.max(5, weapon.getAttackDelay(entity, stack, action, combo) + 10);
                 // 服务器宽限1tick以平衡延迟
                 this.coolDownTick = Math.max(0, coolDownTick - 1);
             } else {
                 // 客户端，通知服务端进入cd
-                PacketDistributor.sendToServer(new CPrepareMeleeAttack(action, origin, direction));
+                PacketDistributor.sendToServer(new CPrepareMeleeAttack(action, combo, origin, direction));
 
                 int delay = weapon.getAttackDelay(entity, stack, action, combo);
                 var attack = new DelayAttack(delay, stack, action, combo);
@@ -181,20 +208,30 @@ public class CombatProperties {
                     }
                 });
             }
-            return true;
-        }
-        return false;
+        return true;
     }
 
     public void postAttack(MeleeAction action, int combo, List<Entity> entities) {
-        ItemStack stack = entity.getMainHandItem();
-        if (!this.preparingAttack || combo != preparingAttackCombo) {
+        if (!preparingAttack) {
             return;
         }
+        if (combo != preparingAttackCombo) {
+            forceResetMeleeSync("received a melee attack request with mismatched combo");
+            return;
+        }
+        ItemStack stack = entity.getMainHandItem();
         if (stack.getItem() instanceof IMeleeWeapon weapon) {
-            weapon.attack(entity, stack, action, entities, combo);
+            weapon.attack(entity, stack, action, entities, preparingAttackCombo);
         }
         preparingAttack = false;
+    }
+
+    private void forceResetMeleeSync(String reason) {
+        resetMeleeSync();
+        if (!entity.level().isClientSide()) {
+            EquipmentMod.LOGGER.warn("Force resetting melee sync for player {}: {}", entity.getScoreboardName(), reason);
+            NetworkHandler.sendToClientPlayer(new SResetMeleeSyncMessage(), entity);
+        }
     }
 
     public static class DelayMove extends DelayTask {

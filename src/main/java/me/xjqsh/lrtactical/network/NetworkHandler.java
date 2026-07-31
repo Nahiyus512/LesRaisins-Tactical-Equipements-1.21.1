@@ -33,6 +33,7 @@ public class NetworkHandler {
         registrar.playToClient(SShieldDisable.TYPE, SShieldDisable.STREAM_CODEC, SShieldDisable::handle);
         registrar.playToClient(SShakeScreenMessage.TYPE, SShakeScreenMessage.STREAM_CODEC, SShakeScreenMessage::handle);
         registrar.playToClient(SSplashParticle.TYPE, SSplashParticle.STREAM_CODEC, SSplashParticle::handle);
+        registrar.playToClient(SResetMeleeSyncMessage.TYPE, SResetMeleeSyncMessage.STREAM_CODEC, SResetMeleeSyncMessage::handle);
         // Client -> Server
         registrar.playToServer(CCancelToggleConsumableUse.TYPE, CCancelToggleConsumableUse.STREAM_CODEC, CCancelToggleConsumableUse::handle);
     }
@@ -66,8 +67,12 @@ public class NetworkHandler {
     }
 
     public static void sendToNearbyPlayers(CustomPacketPayload message, Level level, net.minecraft.world.phys.Vec3 pos, double radius) {
+        sendToNearbyPlayers(message, level, pos, radius, null);
+    }
+
+    public static void sendToNearbyPlayers(CustomPacketPayload message, Level level, net.minecraft.world.phys.Vec3 pos, double radius, ServerPlayer excluded) {
         if (level instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersNear(serverLevel, null, pos.x, pos.y, pos.z, radius, message);
+            PacketDistributor.sendToPlayersNear(serverLevel, excluded, pos.x, pos.y, pos.z, radius, message);
         }
     }
 }

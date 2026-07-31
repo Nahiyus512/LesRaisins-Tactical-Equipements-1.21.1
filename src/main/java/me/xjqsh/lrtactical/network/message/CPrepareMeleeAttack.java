@@ -14,6 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record CPrepareMeleeAttack(
         MeleeAction action,
+        int combo,
         Vec3 origin,
         Vec3 direction
 ) implements CustomPacketPayload {
@@ -27,6 +28,7 @@ public record CPrepareMeleeAttack(
 
     public static void encode(RegistryFriendlyByteBuf buf, CPrepareMeleeAttack message) {
         buf.writeEnum(message.action);
+        buf.writeVarInt(message.combo);
         buf.writeDouble(message.origin.x);
         buf.writeDouble(message.origin.y);
         buf.writeDouble(message.origin.z);
@@ -38,6 +40,7 @@ public record CPrepareMeleeAttack(
     public static CPrepareMeleeAttack decode(RegistryFriendlyByteBuf buf) {
         return new CPrepareMeleeAttack(
                 buf.readEnum(MeleeAction.class),
+                buf.readVarInt(),
                 new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()),
                 new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble())
         );
@@ -55,7 +58,7 @@ public record CPrepareMeleeAttack(
                 return;
             }
             CombatProperties cap = player.getData(ModCapabilities.COMBAT_PROPERTIES);
-            cap.preAttack(message.action, message.origin, message.direction);
+            cap.preAttack(message.action, message.combo, message.origin, message.direction);
         });
     }
 }

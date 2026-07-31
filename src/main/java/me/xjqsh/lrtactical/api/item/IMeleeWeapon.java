@@ -213,6 +213,11 @@ public interface IMeleeWeapon extends ICustomItem {
             attacker.crit(target);
         }
 
+        boolean killed = target instanceof LivingEntity living && living.isDeadOrDying();
+        if (killed) {
+            return flag2 ? AttackResult.CRIT_KILL : AttackResult.KILL;
+        }
+
         return flag2 ? AttackResult.CRIT : AttackResult.HIT;
     }
 
@@ -232,9 +237,24 @@ public interface IMeleeWeapon extends ICustomItem {
         playMeleeSound(entity, id, key, volume, pitch, false);
     }
 
+    static void playMeleeSoundToAttacker(Player entity, ResourceLocation id, String key, float volume, float pitch) {
+        if (entity instanceof ServerPlayer player) {
+            NetworkHandler.sendToClientPlayer(
+                    new SCustomSound(SCustomSound.SoundType.MELEE, id, key, entity.position(), volume, pitch),
+                    player
+            );
+        }
+    }
+
     static void playMeleeSound(Player entity, ResourceLocation id, String key, float volume, float pitch, boolean exceptSelf) {
         var packet = new SCustomSound(SCustomSound.SoundType.MELEE, id, key, entity.position(), volume, pitch);
-        NetworkHandler.sendToNearbyPlayers(packet, entity.level(), entity.position(), 64);
+        NetworkHandler.sendToNearbyPlayers(
+                packet,
+                entity.level(),
+                entity.position(),
+                64,
+                exceptSelf && entity instanceof ServerPlayer player ? player : null
+        );
     }
 
     default boolean canSprintingAttack() {

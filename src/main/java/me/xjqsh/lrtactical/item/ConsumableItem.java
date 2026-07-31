@@ -1,6 +1,7 @@
 package me.xjqsh.lrtactical.item;
 
 import com.tacz.guns.api.item.IAnimationItem;
+import me.xjqsh.lrtactical.api.event.ConsumableUseEvent;
 import me.xjqsh.lrtactical.api.item.IConsumable;
 import me.xjqsh.lrtactical.capability.CustomItemCoolDowns;
 import me.xjqsh.lrtactical.client.input.ConsumableInputHandler;
@@ -30,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -258,6 +260,8 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
             FoodData foodData = player.getFoodData();
             foodData.eat(data.getFood(), data.getSaturation());
         }
+
+        NeoForge.EVENT_BUS.post(new ConsumableUseEvent(entity, stack.copy(), index.getId(), index));
 
         ResourceLocation cooldownId = data.getCooldownCategory();
         if (cooldownId != null && data.getCooldown() > 0) {
