@@ -27,13 +27,16 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
     public void onCreateResult(CallbackInfo ci) {
         ItemStack stack1 = this.inputSlots.getItem(0);
         ItemStack stack2 = this.inputSlots.getItem(1);
-        if (stack1.getItem() instanceof ICustomItem item1 && stack2.getItem() instanceof ICustomItem) {
-            if (!item1.isSame(stack1, stack2)) {
-                this.resultSlots.setItem(0, ItemStack.EMPTY);
-                this.cost.set(0);
-                this.repairItemCountCost = 0;
-                ci.cancel();
-            }
+        if (!(stack1.getItem() instanceof ICustomItem item1)
+                || !(stack2.getItem() instanceof ICustomItem)) {
+            return;
+        }
+
+        if (!item1.isSame(stack1, stack2)) {
+            this.resultSlots.setItem(0, ItemStack.EMPTY);
+            this.cost.set(0);
+            this.repairItemCountCost = 0;
+            ci.cancel();
         }
     }
 }

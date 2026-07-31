@@ -15,9 +15,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +38,7 @@ public class MeleeWeaponIndex<T extends MeleeWeaponData> implements ICustomItemI
     private final String name;
     private final String tooltip;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
+    private final ItemAttributeModifiers itemAttributeModifiers;
     private List<FormattedCharSequence> desc;
 
 
@@ -47,19 +51,27 @@ public class MeleeWeaponIndex<T extends MeleeWeaponData> implements ICustomItemI
         this.name = name;
         this.tooltip = tooltip;
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+        ItemAttributeModifiers.Builder itemAttributesBuilder = ItemAttributeModifiers.builder();
         for (var entry : data.getRawAttributes().getAttributes()) {
             Attribute attribute = BuiltInRegistries.ATTRIBUTE.get(entry.id());
             if (attribute == null) {
                 EquipmentMod.LOGGER.error("Unknown attribute {} for melee weapon {}", entry.id(), id);
                 continue;
             }
-            builder.put(attribute, new AttributeModifier(
+            AttributeModifier modifier = new AttributeModifier(
                     ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "melee_modifier_" + entry.id().getPath()),
                     entry.amount(),
                     entry.operation()
-            ));
+            );
+            builder.put(attribute, modifier);
+            itemAttributesBuilder.add(
+                    BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute),
+                    modifier,
+                    EquipmentSlotGroup.MAINHAND
+            );
         }
         defaultModifiers = builder.build();
+        itemAttributeModifiers = itemAttributesBuilder.build();
     }
 
     @Nullable
@@ -75,6 +87,12 @@ public class MeleeWeaponIndex<T extends MeleeWeaponData> implements ICustomItemI
 
     public Multimap<Attribute, AttributeModifier> getDefaultModifiers() {
         return defaultModifiers;
+    }
+
+    public void applyAttributeModifiers(ItemAttributeModifierEvent event) {
+        for (ItemAttributeModifiers.Entry entry : itemAttributeModifiers.modifiers()) {
+            event.replaceModifier(entry.attribute(), entry.modifier(), entry.slot());
+        }
     }
 
     public T getData() {

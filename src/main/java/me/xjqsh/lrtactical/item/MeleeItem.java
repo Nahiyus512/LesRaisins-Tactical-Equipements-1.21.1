@@ -1,7 +1,5 @@
 package me.xjqsh.lrtactical.item;
 
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import com.tacz.guns.api.item.IAnimationItem;
 import me.xjqsh.lrtactical.api.collision.ITargetFilter;
 import me.xjqsh.lrtactical.api.item.IMeleeWeapon;
@@ -12,8 +10,6 @@ import me.xjqsh.lrtactical.item.index.MeleeWeaponIndex;
 import me.xjqsh.lrtactical.item.melee.CombatData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
@@ -155,32 +151,7 @@ public class MeleeItem extends Item implements IAnimationItem, IMeleeWeapon {
             IMeleeWeapon.playMeleeSound(attacker, index.getId(), action.getId(), 2, 1, true);
 
             double baseDamage = attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
-            var damageModifiers = index.getDefaultModifiers().get(Attributes.ATTACK_DAMAGE.value());
-            if (damageModifiers != null && !damageModifiers.isEmpty()) {
-                double value = baseDamage;
-                for (AttributeModifier modifier : damageModifiers) {
-                    value += switch (modifier.operation()) {
-                        case ADD_VALUE -> modifier.amount();
-                        case ADD_MULTIPLIED_BASE -> baseDamage * modifier.amount();
-                        case ADD_MULTIPLIED_TOTAL -> value * modifier.amount();
-                    };
-                }
-                baseDamage = value;
-            }
-
             double baseKnockback = attacker.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
-            var knockbackModifiers = index.getDefaultModifiers().get(Attributes.ATTACK_KNOCKBACK.value());
-            if (knockbackModifiers != null && !knockbackModifiers.isEmpty()) {
-                double value = baseKnockback;
-                for (AttributeModifier modifier : knockbackModifiers) {
-                    value += switch (modifier.operation()) {
-                        case ADD_VALUE -> modifier.amount();
-                        case ADD_MULTIPLIED_BASE -> baseKnockback * modifier.amount();
-                        case ADD_MULTIPLIED_TOTAL -> value * modifier.amount();
-                    };
-                }
-                baseKnockback = value;
-            }
 
             float damage = (float) (baseDamage * attackInfo.getFactor());
             float knockback = (float) (baseKnockback + attackInfo.getKnockback());
