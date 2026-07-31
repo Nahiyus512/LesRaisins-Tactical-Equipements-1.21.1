@@ -18,7 +18,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 //todo 临时实现，太丑了，还得改
 public class CombatProperties {
@@ -32,7 +34,9 @@ public class CombatProperties {
     private int lastSelected = 0;
     private int drawingTick = 0;
     private boolean preparingAttack = false;
+    private int preparingAttackCombo = 0;
     private int preparingWindowTick = 0;
+    private final Map<MeleeAction, Integer> actionCounts = new EnumMap<>(MeleeAction.class);
     /** TOGGLE消耗品累计使用tick数 */
     private int toggleUseTicks = 0;
 
@@ -118,7 +122,10 @@ public class CombatProperties {
         lastMaxTick = newCoolDown;
         drawingTick = newCoolDown;
         preparingAttack = false;
+        preparingAttackCombo = 0;
         preparingWindowTick = 0;
+        actionCounts.clear();
+        delayedActions.clear();
         toggleUseTicks = 0;
     }
 
@@ -129,21 +136,25 @@ public class CombatProperties {
                 return false;
             }
 
-            coolDownTick = weapon.getAttackCoolDown(stack, action);
+            int combo = actionCounts.getOrDefault(action, 0);
+            actionCounts.put(action, combo + 1);
+
+            coolDownTick = weapon.getAttackCoolDown(stack, action, combo);
             lastMaxTick = coolDownTick;
 
             if (!entity.level().isClientSide()) {
                 // 服务端，准备进行攻击
                 this.preparingAttack = true;
-                this.preparingWindowTick = Math.max(5, weapon.getAttackDelay(entity, stack, action) + 10);
+                this.preparingAttackCombo = combo;
+                this.preparingWindowTick = Math.max(5, weapon.getAttackDelay(entity, stack, action, combo) + 10);
                 // 服务器宽限1tick以平衡延迟
                 this.coolDownTick = Math.max(0, coolDownTick - 1);
             } else {
                 // 客户端，通知服务端进入cd
                 PacketDistributor.sendToServer(new CPrepareMeleeAttack(action, origin, direction));
 
-                int delay = weapon.getAttackDelay(entity, stack, action);
-                var attack = new DelayAttack(delay, stack, action);
+                int delay = weapon.getAttackDelay(entity, stack, action, combo);
+                var attack = new DelayAttack(delay, stack, action, combo);
                 if (attack.getDelay() == 0) {
                     attack.perform(entity);
                 } else {
@@ -175,13 +186,13 @@ public class CombatProperties {
         return false;
     }
 
-    public void postAttack(MeleeAction action, List<Entity> entities) {
+    public void postAttack(MeleeAction action, int combo, List<Entity> entities) {
         ItemStack stack = entity.getMainHandItem();
-        if (!this.preparingAttack) {
+        if (!this.preparingAttack || combo != preparingAttackCombo) {
             return;
         }
         if (stack.getItem() instanceof IMeleeWeapon weapon) {
-            weapon.attack(entity, stack, action, entities);
+            weapon.attack(entity, stack, action, entities, combo);
         }
         preparingAttack = false;
     }
@@ -209,18 +220,20 @@ public class CombatProperties {
     public static class DelayAttack extends DelayTask {
         private final ItemStack stack;
         private final MeleeAction action;
+        private final int combo;
 
-        DelayAttack(int delay, ItemStack stack, MeleeAction action) {
+        DelayAttack(int delay, ItemStack stack, MeleeAction action, int combo) {
             super(delay);
             this.action = action;
             this.stack = stack;
+            this.combo = combo;
         }
 
         @Override
         public void perform(Player player) {
             if (stack.getItem() instanceof IMeleeWeapon weapon && weapon.isSame(stack, player.getMainHandItem())) {
                 List<Entity> entities = weapon.collectTargets(player, stack, action, player.getEyePosition(), player.getLookAngle());
-                PacketDistributor.sendToServer(new CMeleeAttackRequest(action, entities));
+                PacketDistributor.sendToServer(new CMeleeAttackRequest(action, combo, entities));
             }
         }
     }

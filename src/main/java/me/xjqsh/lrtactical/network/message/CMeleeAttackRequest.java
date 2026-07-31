@@ -18,6 +18,7 @@ import java.util.List;
 
 public record CMeleeAttackRequest(
         MeleeAction action,
+        int combo,
         int[] entityIds
 ) implements CustomPacketPayload {
 
@@ -28,8 +29,8 @@ public record CMeleeAttackRequest(
             CMeleeAttackRequest::decode
     );
 
-    public CMeleeAttackRequest(MeleeAction action, List<Entity> entities) {
-        this(action, toList(entities));
+    public CMeleeAttackRequest(MeleeAction action, int combo, List<Entity> entities) {
+        this(action, combo, toList(entities));
     }
 
     private static int[] toList(List<Entity> entities) {
@@ -38,13 +39,15 @@ public record CMeleeAttackRequest(
 
     public static void encode(RegistryFriendlyByteBuf buf, CMeleeAttackRequest message) {
         buf.writeEnum(message.action);
+        buf.writeVarInt(message.combo);
         buf.writeVarIntArray(message.entityIds);
     }
 
     public static CMeleeAttackRequest decode(RegistryFriendlyByteBuf buf) {
         MeleeAction action = buf.readEnum(MeleeAction.class);
+        int combo = buf.readVarInt();
         int[] ids = buf.readVarIntArray();
-        return new CMeleeAttackRequest(action, ids);
+        return new CMeleeAttackRequest(action, combo, ids);
     }
 
     @Override
@@ -76,7 +79,7 @@ public record CMeleeAttackRequest(
             }
 
             CombatProperties cap = player.getData(ModCapabilities.COMBAT_PROPERTIES);
-            cap.postAttack(message.action, entities);
+            cap.postAttack(message.action, message.combo, entities);
         });
     }
 }

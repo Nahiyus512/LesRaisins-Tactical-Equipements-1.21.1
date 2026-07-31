@@ -99,6 +99,10 @@ public interface IMeleeWeapon extends ICustomItem {
     }
 
     default int getAttackDelay(Player attacker, ItemStack stack, MeleeAction action) {
+        return getAttackDelay(attacker, stack, action, 0);
+    }
+
+    default int getAttackDelay(Player attacker, ItemStack stack, MeleeAction action, int combo) {
         return 0;
     }
 
@@ -137,7 +141,11 @@ public interface IMeleeWeapon extends ICustomItem {
      * @param stack 攻击使用的物品
      * @param action 攻击动作
      */
-    void attack(Player attacker, ItemStack stack, MeleeAction action, List<Entity> targets);
+    default void attack(Player attacker, ItemStack stack, MeleeAction action, List<Entity> targets) {
+        attack(attacker, stack, action, targets, 0);
+    }
+
+    void attack(Player attacker, ItemStack stack, MeleeAction action, List<Entity> targets, int combo);
 
     @Deprecated
     default void attack(Player attacker, ItemStack stack, MeleeAction action, Vec3 origin, Vec3 direction) {}

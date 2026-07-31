@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class NetworkHandler {
-    private static final String VERSION = "0.3.0";
+    private static final String VERSION = "0.4.0";
 
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {

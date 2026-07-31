@@ -60,7 +60,7 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
     }
 
     @Override
-    public void attack(Player attacker, ItemStack stack, MeleeAction action, List<Entity> targets) {
+    public void attack(Player attacker, ItemStack stack, MeleeAction action, List<Entity> targets, int combo) {
         float base = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         for (Entity livingentity : targets) {
             boolean flag = !(livingentity instanceof ArmorStand armorStand) || !armorStand.isMarker();
@@ -84,7 +84,7 @@ public class FlashShieldItem extends Item implements IMeleeWeapon, IAnimationIte
     }
 
     @Override
-    public int getAttackDelay(Player attacker, ItemStack stack, MeleeAction action) {
+    public int getAttackDelay(Player attacker, ItemStack stack, MeleeAction action, int combo) {
         return 5;
     }
 
