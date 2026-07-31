@@ -41,6 +41,7 @@ public enum LrClientAssetsManager {
     private ConsumableDisplayManager consumableDisplay;
 
     public void reloadAndRegister(Consumer<PreparableReloadListener> register) {
+        register.accept(LrPlayerAnimatorAssetManager.INSTANCE);
         consumableDisplay = new ConsumableDisplayManager(GSON);
         throwableDisplay = new ThrowableDisplayManager(GSON);
         meleeDisplay = new MeleeDisplayManager(GSON);

@@ -12,6 +12,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class CompatRegistry {
     public static final String CLOTH_CONFIG = "cloth_config";
+    public static final String PLAYER_ANIMATOR = "playeranimator";
 
 
     @SubscribeEvent

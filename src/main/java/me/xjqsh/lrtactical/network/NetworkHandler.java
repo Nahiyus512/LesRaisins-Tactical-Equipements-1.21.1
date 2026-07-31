@@ -34,6 +34,7 @@ public class NetworkHandler {
         registrar.playToClient(SShakeScreenMessage.TYPE, SShakeScreenMessage.STREAM_CODEC, SShakeScreenMessage::handle);
         registrar.playToClient(SSplashParticle.TYPE, SSplashParticle.STREAM_CODEC, SSplashParticle::handle);
         registrar.playToClient(SResetMeleeSyncMessage.TYPE, SResetMeleeSyncMessage.STREAM_CODEC, SResetMeleeSyncMessage::handle);
+        registrar.playToClient(SMeleeAnimationSync.TYPE, SMeleeAnimationSync.STREAM_CODEC, SMeleeAnimationSync::handle);
         // Client -> Server
         registrar.playToServer(CCancelToggleConsumableUse.TYPE, CCancelToggleConsumableUse.STREAM_CODEC, CCancelToggleConsumableUse::handle);
     }

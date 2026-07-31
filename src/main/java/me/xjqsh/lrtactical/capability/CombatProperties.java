@@ -111,6 +111,10 @@ public class CombatProperties {
         this.toggleUseTicks = ticks;
     }
 
+    public int getActionCount(MeleeAction meleeAction) {
+        return actionCounts.getOrDefault(meleeAction, 0);
+    }
+
     public void reset(ICustomItem customItem, ItemStack last) {
         lastItem = entity.getMainHandItem().copy();
         int newCoolDown = customItem.getDrawTime(entity.getMainHandItem());

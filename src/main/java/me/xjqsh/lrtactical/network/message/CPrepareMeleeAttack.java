@@ -2,8 +2,10 @@ package me.xjqsh.lrtactical.network.message;
 
 import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.melee.MeleeAction;
+import me.xjqsh.lrtactical.api.item.IMeleeWeapon;
 import me.xjqsh.lrtactical.capability.CombatProperties;
 import me.xjqsh.lrtactical.init.ModCapabilities;
+import me.xjqsh.lrtactical.network.NetworkHandler;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -58,7 +60,18 @@ public record CPrepareMeleeAttack(
                 return;
             }
             CombatProperties cap = player.getData(ModCapabilities.COMBAT_PROPERTIES);
-            cap.preAttack(message.action, message.combo, message.origin, message.direction);
+            if (cap.preAttack(message.action, message.combo, message.origin, message.direction)
+                    && player.getMainHandItem().getItem() instanceof IMeleeWeapon weapon) {
+                NetworkHandler.sendToTrackingEntityAndSelf(
+                        player,
+                        new SMeleeAnimationSync(
+                                player.getId(),
+                                message.action,
+                                cap.getActionCount(message.action),
+                                weapon.getId(player.getMainHandItem())
+                        )
+                );
+            }
         });
     }
 }

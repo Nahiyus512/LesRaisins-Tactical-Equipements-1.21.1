@@ -10,6 +10,8 @@ import me.xjqsh.lrtactical.client.particle.SmokeCloudParticle;
 import me.xjqsh.lrtactical.client.renderer.CoolDownDecorations;
 import me.xjqsh.lrtactical.client.renderer.entity.ThrowableEntityRenderer;
 import me.xjqsh.lrtactical.entity.*;
+import me.xjqsh.lrtactical.compat.player_animator.PlayerAnimatorHelper;
+import me.xjqsh.lrtactical.init.CompatRegistry;
 import me.xjqsh.lrtactical.entity.sp.SpEffectCloudEntity;
 import me.xjqsh.lrtactical.init.ModItems;
 import me.xjqsh.lrtactical.init.ModParticleTypes;
@@ -21,6 +23,7 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD, modid = EquipmentMod.MOD_ID)
@@ -55,6 +58,9 @@ public class ClientSetupHandler {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         NeoForge.EVENT_BUS.register(SoundHandler.get());
+        if (ModList.get().isLoaded(CompatRegistry.PLAYER_ANIMATOR)) {
+            event.enqueueWork(PlayerAnimatorHelper::initIntegration);
+        }
     }
 
     @SubscribeEvent
