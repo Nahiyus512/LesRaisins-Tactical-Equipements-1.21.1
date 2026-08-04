@@ -1,6 +1,5 @@
 package me.xjqsh.lrtactical.compat.player_animator;
 
-import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.LrTacticalAPI;
 import me.xjqsh.lrtactical.api.event.MeleePreAttackEvent;
 import me.xjqsh.lrtactical.api.melee.MeleeAction;
@@ -10,10 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(value = Dist.CLIENT, modid = EquipmentMod.MOD_ID)
 public class MeleeAnimationListener {
 
     @SubscribeEvent
@@ -36,7 +33,7 @@ public class MeleeAnimationListener {
             if (path == null) return;
 
             String action = state.getId();
-            var layer = PlayerAnimatorIntegration.AnimationLayer.UPPER;
+            var layer = ThirdPersonAnimationConfig.AnimationLayer.UPPER;
             int fade = 4;
 
             String anim = config.getAnimation(layer, action, actionCount);

@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ThirdPersonAnimationConfig {
+    public enum AnimationLayer {
+        UPPER,
+        LOWER
+    }
+
     @SerializedName("animation")
     private String animationPath;
 
@@ -24,8 +29,8 @@ public class ThirdPersonAnimationConfig {
     }
 
     @Nullable
-    public String getAnimation(PlayerAnimatorIntegration.AnimationLayer layer, String action, int index) {
-        Map<String, Object> actions = layer == PlayerAnimatorIntegration.AnimationLayer.UPPER ? upper : lower;
+    public String getAnimation(AnimationLayer layer, String action, int index) {
+        Map<String, Object> actions = layer == AnimationLayer.UPPER ? upper : lower;
         Object value = actions.get(action);
         if (value == null) return null;
 
@@ -37,14 +42,14 @@ public class ThirdPersonAnimationConfig {
         return null;
     }
 
-    public boolean hasMultiple(PlayerAnimatorIntegration.AnimationLayer layer, String action) {
-        Map<String, Object> actions = layer == PlayerAnimatorIntegration.AnimationLayer.UPPER ? upper : lower;
+    public boolean hasMultiple(AnimationLayer layer, String action) {
+        Map<String, Object> actions = layer == AnimationLayer.UPPER ? upper : lower;
         Object value = actions.get(action);
         return value instanceof List<?> list && list.size() > 1;
     }
 
-    public int getCount(PlayerAnimatorIntegration.AnimationLayer layer, String action) {
-        Map<String, Object> actions = layer == PlayerAnimatorIntegration.AnimationLayer.UPPER ? upper : lower;
+    public int getCount(AnimationLayer layer, String action) {
+        Map<String, Object> actions = layer == AnimationLayer.UPPER ? upper : lower;
         Object value = actions.get(action);
         if (value instanceof List<?> list) return list.size();
         return value != null ? 1 : 0;
@@ -52,11 +57,11 @@ public class ThirdPersonAnimationConfig {
 
     @Deprecated
     public boolean hasMultipleAnimations(String actionName) {
-        return hasMultiple(PlayerAnimatorIntegration.AnimationLayer.UPPER, actionName);
+        return hasMultiple(AnimationLayer.UPPER, actionName);
     }
 
     @Deprecated
     public int getAnimationCount(String actionName) {
-        return getCount(PlayerAnimatorIntegration.AnimationLayer.UPPER, actionName);
+        return getCount(AnimationLayer.UPPER, actionName);
     }
 }

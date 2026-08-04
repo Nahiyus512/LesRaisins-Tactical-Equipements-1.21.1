@@ -1,9 +1,8 @@
 package me.xjqsh.lrtactical.compat.player_animator;
 
-import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.api.LrTacticalAPI;
 import me.xjqsh.lrtactical.client.resource.display.MeleeDisplayInstance;
-import me.xjqsh.lrtactical.compat.player_animator.PlayerAnimatorIntegration.AnimationLayer;
+import me.xjqsh.lrtactical.compat.player_animator.ThirdPersonAnimationConfig.AnimationLayer;
 import me.xjqsh.lrtactical.api.item.IMeleeWeapon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -13,12 +12,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(value = Dist.CLIENT, modid = EquipmentMod.MOD_ID)
 public class IdleAnimationHandler {
 
     @SubscribeEvent

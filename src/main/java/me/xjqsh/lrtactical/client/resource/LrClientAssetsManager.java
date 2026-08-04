@@ -9,6 +9,8 @@ import me.xjqsh.lrtactical.client.resource.display.ThrowableDisplayInstance;
 import me.xjqsh.lrtactical.client.resource.manager.ConsumableDisplayManager;
 import me.xjqsh.lrtactical.client.resource.manager.MeleeDisplayManager;
 import me.xjqsh.lrtactical.client.resource.manager.ThrowableDisplayManager;
+import me.xjqsh.lrtactical.compat.player_animator.PlayerAnimatorHelper;
+import me.xjqsh.lrtactical.init.CompatRegistry;
 import me.xjqsh.lrtactical.init.ModItems;
 import me.xjqsh.lrtactical.resource.serializer.ResourceLocationSerializer;
 import net.minecraft.client.renderer.block.model.ItemTransform;
@@ -21,6 +23,7 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 
@@ -41,7 +44,9 @@ public enum LrClientAssetsManager {
     private ConsumableDisplayManager consumableDisplay;
 
     public void reloadAndRegister(Consumer<PreparableReloadListener> register) {
-        register.accept(LrPlayerAnimatorAssetManager.INSTANCE);
+        if (ModList.get().isLoaded(CompatRegistry.PLAYER_ANIMATOR)) {
+            PlayerAnimatorHelper.registerReloadListener(register);
+        }
         consumableDisplay = new ConsumableDisplayManager(GSON);
         throwableDisplay = new ThrowableDisplayManager(GSON);
         meleeDisplay = new MeleeDisplayManager(GSON);

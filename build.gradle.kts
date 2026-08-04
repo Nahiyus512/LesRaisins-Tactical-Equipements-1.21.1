@@ -130,7 +130,7 @@ dependencies {
 
     compileOnly(libs.org.apache.bcel)
     compileOnly(libs.cloth.config)
-    implementation(libs.player.animation.lib)
+    compileOnly(libs.player.animation.lib)
 
     compileOnly(libs.jei.common.api) 
     compileOnly(libs.jei.neoforge.api) 

@@ -11,6 +11,7 @@ import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import me.xjqsh.lrtactical.EquipmentMod;
 import me.xjqsh.lrtactical.client.resource.LrPlayerAnimatorAssetManager;
+import me.xjqsh.lrtactical.compat.player_animator.ThirdPersonAnimationConfig.AnimationLayer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 
@@ -19,17 +20,12 @@ public class PlayerAnimatorIntegration {
     public static final ResourceLocation LOWER_LAYER = ResourceLocation.fromNamespaceAndPath(EquipmentMod.MOD_ID, "lower");
     private static boolean initialized = false;
 
-    public enum AnimationLayer {
-        UPPER(UPPER_LAYER, 40),
-        LOWER(LOWER_LAYER, 41);
+    private static ResourceLocation getLayerId(AnimationLayer layer) {
+        return layer == AnimationLayer.UPPER ? UPPER_LAYER : LOWER_LAYER;
+    }
 
-        private final ResourceLocation id;
-        private final int priority;
-
-        AnimationLayer(ResourceLocation id, int priority) {
-            this.id = id;
-            this.priority = priority;
-        }
+    private static int getLayerPriority(AnimationLayer layer) {
+        return layer == AnimationLayer.UPPER ? 40 : 41;
     }
 
 
@@ -38,7 +34,8 @@ public class PlayerAnimatorIntegration {
         initialized = true;
 
         for (AnimationLayer layer : AnimationLayer.values()) {
-            PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(layer.id, layer.priority, p -> new ModifierLayer<>());
+            PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(
+                    getLayerId(layer), getLayerPriority(layer), p -> new ModifierLayer<>());
         }
 
         EquipmentMod.LOGGER.info("Initialized Player Animator third-person animation layers");
@@ -89,7 +86,7 @@ public class PlayerAnimatorIntegration {
 
     @SuppressWarnings("unchecked")
     private static ModifierLayer<IAnimation> getLayer(AbstractClientPlayer player, AnimationLayer layer) {
-        return (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData(player).get(layer.id);
+        return (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData(player).get(getLayerId(layer));
     }
 
     public static boolean isAttackAnimationActive(AbstractClientPlayer player, AnimationLayer layer) {
