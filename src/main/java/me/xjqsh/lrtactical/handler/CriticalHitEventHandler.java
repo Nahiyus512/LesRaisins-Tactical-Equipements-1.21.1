@@ -35,7 +35,7 @@ public class CriticalHitEventHandler {
             // 检查是否从背后攻击
             Vec3 targetForward = target.getForward();
             double angle = VectorUtil.angleBetween(positionVector, targetForward);
-            if (angle <= 60) {
+            if (angle <= 45) {
                 // event.setResult(Event.Result.ALLOW);
                 event.setDamageMultiplier(event.getDamageMultiplier() + level * 0.25f);
             }

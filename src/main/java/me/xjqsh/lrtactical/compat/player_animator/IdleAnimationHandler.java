@@ -42,12 +42,22 @@ public class IdleAnimationHandler {
                 applyIdleAnimationFor(clientPlayer, config);
             }
             applyLowerBodyAnimation(clientPlayer, config);
+            enableRotationModifier(clientPlayer, config);
         }
     }
 
     public static void stopAll(AbstractClientPlayer clientPlayer) {
         PlayerAnimatorIntegration.stopAnimation(clientPlayer, AnimationLayer.UPPER, 8);
         PlayerAnimatorIntegration.stopAnimation(clientPlayer, AnimationLayer.LOWER, 8);
+        PlayerAnimatorIntegration.stopAnimation(clientPlayer, AnimationLayer.ROTATION, 4);
+    }
+
+    public static void enableRotationModifier(AbstractClientPlayer player, @NotNull ThirdPersonAnimationConfig config) {
+        ResourceLocation basePath = config.getAnimationPath();
+
+        if (basePath != null) {
+            PlayerAnimatorIntegration.enableRotationModifier(player, basePath, 4);
+        }
     }
 
     public static void applyIdleAnimationFor(AbstractClientPlayer player, @NotNull ThirdPersonAnimationConfig config) {

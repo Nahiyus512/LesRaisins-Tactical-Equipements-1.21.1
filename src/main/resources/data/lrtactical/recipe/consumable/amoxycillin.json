@@ -1,0 +1,36 @@
+{
+  "type": "tacz:gun_smith_table_crafting",
+  "materials": [
+    {
+      "item": {
+        "tag": "c:mushrooms"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "item": "minecraft:sugar"
+      },
+      "count": 1
+    },
+    {
+      "item": {
+        "item": "minecraft:glass_bottle"
+      },
+      "count": 1
+    }
+  ],
+  "result": {
+    "type": "custom",
+    "group": "lrtactical:consumable",
+    "item": {
+      "id": "lrtactical:consumable",
+      "count": 1,
+      "components": {
+        "minecraft:custom_data": {
+          "ConsumableId": "lrtactical:amoxycillin"
+        }
+      }
+    }
+  }
+}

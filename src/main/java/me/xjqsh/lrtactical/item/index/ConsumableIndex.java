@@ -17,13 +17,15 @@ public class ConsumableIndex implements ICustomItemIndex {
     private final ConsumableData data;
     private final ResourceLocation id;
     private final String name;
+    private final String tooltip;
     private final FoodProperties foodProperties;
 
-    private ConsumableIndex(ConsumableData data, String name, ResourceLocation id, Item baseItem) {
+    private ConsumableIndex(ConsumableData data, String name, String tooltip, ResourceLocation id, Item baseItem) {
         this.baseItem = baseItem;
         this.data = data;
         this.id = id;
         this.name = name;
+        this.tooltip = tooltip;
         this.foodProperties = buildFoodProperties(data);
     }
 
@@ -41,12 +43,12 @@ public class ConsumableIndex implements ICustomItemIndex {
     }
 
     @Nullable
-    public static ConsumableIndex deserialize(JsonElement data, String name, ResourceLocation id, Item baseItem) {
+    public static ConsumableIndex deserialize(JsonElement data, String name, String tooltip, ResourceLocation id, Item baseItem) {
         ConsumableData consumableData = CommonAssetsManager.GSON.fromJson(data, ConsumableData.class);
         if (consumableData == null) {
             return null;
         }
-        return new ConsumableIndex(consumableData, name, id, baseItem);
+        return new ConsumableIndex(consumableData, name, tooltip, id, baseItem);
     }
 
     public ConsumableData getData() {
@@ -87,6 +89,10 @@ public class ConsumableIndex implements ICustomItemIndex {
     @Override
     public String getDescriptionId() {
         return name;
+    }
+
+    public String getTooltip() {
+        return tooltip;
     }
 
     public FoodProperties getFoodProperties() {

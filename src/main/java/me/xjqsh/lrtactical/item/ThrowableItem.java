@@ -7,8 +7,8 @@ import me.xjqsh.lrtactical.capability.CustomItemCoolDowns;
 import me.xjqsh.lrtactical.client.renderer.item.ThrowableItemRendererWrapper;
 import me.xjqsh.lrtactical.init.ModCapabilities;
 import me.xjqsh.lrtactical.init.ModItems;
+import me.xjqsh.lrtactical.inventory.tooltip.ThrowableTooltip;
 import me.xjqsh.lrtactical.item.index.ThrowableIndex;
-import me.xjqsh.lrtactical.item.throwable.area.EffectCloudThrowableData;
 import me.xjqsh.lrtactical.item.throwable.explode.ExplodeThrowableData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -16,20 +16,19 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
@@ -121,7 +120,7 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
     public void onUseTick(Level world, LivingEntity entity, ItemStack stack, int pRemainingUseDuration) {
         this.getThrowableIndex(stack).ifPresent(index ->{
             var data = index.getData();
-            int maxCookTime = (int) (data.getEntityData().getLifeTime() * 0.9);
+            int maxCookTime = data.getEntityData().getLifeTime();
             if (data.isCookable() && entity.getTicksUsingItem() >= data.getPrepareTime() + maxCookTime) {
                 if (!world.isClientSide()) {
                     onThrow(world, entity, stack, index);
@@ -164,14 +163,8 @@ public class ThrowableItem extends Item implements IAnimationItem, IThrowable {
         return IThrowable.super.isSame(stack1, stack2);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
-        this.getThrowableIndex(stack).ifPresent(index -> {
-            if (index.getData() instanceof EffectCloudThrowableData data) {
-                PotionContents contents = new PotionContents(java.util.Optional.empty(), java.util.Optional.empty(), data.getCloudData().getEffectInstances());
-                contents.addPotionTooltip(pTooltipComponents::add, 1.0F, 20.0F);
-            }
-        });
+    public Optional<TooltipComponent> getTooltipImage(ItemStack pStack) {
+        return Optional.of(new ThrowableTooltip(pStack));
     }
 }

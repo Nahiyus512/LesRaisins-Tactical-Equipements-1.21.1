@@ -11,7 +11,8 @@ import java.util.Map;
 public class ThirdPersonAnimationConfig {
     public enum AnimationLayer {
         UPPER,
-        LOWER
+        LOWER,
+        ROTATION
     }
 
     @SerializedName("animation")

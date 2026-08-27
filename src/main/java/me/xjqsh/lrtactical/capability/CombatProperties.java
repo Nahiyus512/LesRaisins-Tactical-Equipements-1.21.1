@@ -36,6 +36,8 @@ public class CombatProperties {
     private int drawingTick = 0;
     private boolean preparingAttack = false;
     private int preparingAttackCombo = 0;
+    /** 服务端正在等待攻击请求时手持的物品，用于检测切换武器后旧请求作废 */
+    private ItemStack preparingItem = ItemStack.EMPTY;
     private final Map<MeleeAction, Integer> actionCounts = new EnumMap<>(MeleeAction.class);
     /** TOGGLE消耗品累计使用tick数 */
     private int toggleUseTicks = 0;
@@ -126,6 +128,7 @@ public class CombatProperties {
         drawingTick = newCoolDown;
         preparingAttack = false;
         preparingAttackCombo = 0;
+        preparingItem = ItemStack.EMPTY;
         actionCounts.clear();
         delayedActions.clear();
         toggleUseTicks = 0;
@@ -136,6 +139,7 @@ public class CombatProperties {
         lastMaxTick = 0;
         preparingAttack = false;
         preparingAttackCombo = 0;
+        preparingItem = ItemStack.EMPTY;
         actionCounts.clear();
         delayedActions.clear();
     }
@@ -150,6 +154,12 @@ public class CombatProperties {
             return false;
         }
         if (!entity.level().isClientSide()) {
+            // 玩家已切换武器时，旧的未完成攻击请求作废，避免新武器的首次攻击被误拒
+            if (preparingAttack && !isSameMeleeItem(preparingItem, stack)) {
+                preparingAttack = false;
+                preparingAttackCombo = 0;
+                preparingItem = ItemStack.EMPTY;
+            }
             if (preparingAttack || coolDownTick > 1) {
                 return false;
             }
@@ -178,6 +188,7 @@ public class CombatProperties {
                 // 服务端，准备进行攻击
                 this.preparingAttack = true;
                 this.preparingAttackCombo = combo;
+                this.preparingItem = stack.copy();
                 // 服务器宽限1tick以平衡延迟
                 this.coolDownTick = Math.max(0, coolDownTick - 1);
             } else {
@@ -236,6 +247,16 @@ public class CombatProperties {
             EquipmentMod.LOGGER.warn("Force resetting melee sync for player {}: {}", entity.getScoreboardName(), reason);
             NetworkHandler.sendToClientPlayer(new SResetMeleeSyncMessage(), entity);
         }
+    }
+
+    private static boolean isSameMeleeItem(ItemStack a, ItemStack b) {
+        if (a.isEmpty() || b.isEmpty()) {
+            return a.isEmpty() && b.isEmpty();
+        }
+        if (a.getItem() instanceof IMeleeWeapon wa && b.getItem() instanceof IMeleeWeapon wb) {
+            return wa.isSame(a, b);
+        }
+        return ItemStack.matches(a, b);
     }
 
     public static class DelayMove extends DelayTask {

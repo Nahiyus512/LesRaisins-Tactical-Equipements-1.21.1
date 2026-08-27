@@ -7,6 +7,7 @@ import me.xjqsh.lrtactical.capability.CustomItemCoolDowns;
 import me.xjqsh.lrtactical.client.input.ConsumableInputHandler;
 import me.xjqsh.lrtactical.client.renderer.item.ConsumableItemRenderer;
 import me.xjqsh.lrtactical.init.ModCapabilities;
+import me.xjqsh.lrtactical.inventory.tooltip.ConsumableTooltip;
 import me.xjqsh.lrtactical.item.consumable.ConsumableData;
 import me.xjqsh.lrtactical.item.index.ConsumableIndex;
 import net.minecraft.core.Holder;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ConsumableItem extends Item implements IAnimationItem, IConsumable {
@@ -280,21 +283,7 @@ public class ConsumableItem extends Item implements IAnimationItem, IConsumable 
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag tooltipFlag) {
-        this.getConsumableIndex(stack).ifPresent(index -> {
-            ConsumableData data = index.getData();
-            if (data.getHeal() > 0f) {
-                tooltip.add(Component.translatable("tooltip.lrtactical.consumable.heal", data.getHeal()));
-            }
-            if (data.getFood() > 0 || data.getSaturation() > 0f) {
-                tooltip.add(Component.translatable("tooltip.lrtactical.consumable.food", data.getFood(), data.getSaturation()));
-            }
-            for (ConsumableData.EffectData effectData : data.getEffects()) {
-                Holder<MobEffect> effect = BuiltInRegistries.MOB_EFFECT.getHolder(effectData.getId()).orElse(null);
-                if (effect != null) {
-                    tooltip.add(effect.value().getDisplayName());
-                }
-            }
-        });
+    public Optional<TooltipComponent> getTooltipImage(ItemStack pStack) {
+        return Optional.of(new ConsumableTooltip(pStack));
     }
 }

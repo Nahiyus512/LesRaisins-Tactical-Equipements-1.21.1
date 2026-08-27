@@ -12,6 +12,7 @@
   "client": [
     "client.GameRendererMixin",
     "client.GunSmithTableScreenMixin",
+    "client.MinecraftMixin",
     "client.PlayerModelMixin"
   ],
   "injectors": {

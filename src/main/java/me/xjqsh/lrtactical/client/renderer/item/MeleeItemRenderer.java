@@ -10,7 +10,7 @@ import com.tacz.guns.client.model.SlotModel;
 import com.tacz.guns.client.model.bedrock.BedrockPart;
 import com.tacz.guns.client.renderer.item.AnimateGeoItemRenderer;
 import me.xjqsh.lrtactical.api.LrTacticalAPI;
-import me.xjqsh.lrtactical.api.animation.BaseAnimationStateContext;
+import me.xjqsh.lrtactical.api.animation.MeleeAnimationStateContext;
 import me.xjqsh.lrtactical.client.renderer.JumpSwayUtil;
 import me.xjqsh.lrtactical.client.renderer.model.CustomBedrockModel;
 import me.xjqsh.lrtactical.client.resource.display.MeleeDisplayInstance;
@@ -29,21 +29,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import static net.minecraft.world.item.ItemDisplayContext.GUI;
 
-public class MeleeItemRenderer extends AnimateGeoItemRenderer<CustomBedrockModel, BaseAnimationStateContext> {
+public class MeleeItemRenderer extends AnimateGeoItemRenderer<CustomBedrockModel, MeleeAnimationStateContext> {
     private static final SlotModel SLOT_MODEL = new SlotModel();
 
     @Override
-    public BaseAnimationStateContext initContext(ItemStack stack, Player player, float partialTick) {
-        var context = new BaseAnimationStateContext();
+    public MeleeAnimationStateContext initContext(ItemStack stack, Player player, float partialTick) {
+        var context = new MeleeAnimationStateContext();
         this.updateContext(context, stack, player, partialTick);
         return context;
     }
 
     @Override
-    public void updateContext(BaseAnimationStateContext context, ItemStack stack, Player player, float partialTick) {
+    public void updateContext(MeleeAnimationStateContext context, ItemStack stack, Player player, float partialTick) {
         context.setPartialTicks(partialTick);
     }
 
@@ -54,7 +55,7 @@ public class MeleeItemRenderer extends AnimateGeoItemRenderer<CustomBedrockModel
 
     @Override
     @Nullable
-    public LuaAnimationStateMachine<BaseAnimationStateContext> getStateMachine(ItemStack stack) {
+    public LuaAnimationStateMachine<MeleeAnimationStateContext> getStateMachine(ItemStack stack) {
         return LrTacticalAPI.getMeleeDisplay(stack).map(MeleeDisplayInstance::getStateMachine).orElse(null);
     }
 
@@ -154,6 +155,12 @@ public class MeleeItemRenderer extends AnimateGeoItemRenderer<CustomBedrockModel
                     ItemTransform transform = transforms.getTransform(ctx);
                     transform.apply(false, poseStack);
                     poseStack.translate(-0.5F, -0.5F, -0.5F);
+                }
+
+                // 非第一人称展示变换的额外基准位置偏移（方块单位），仅整体平移，不影响 transforms 的旋转/缩放中心
+                Vector3f displayOffset = display.getDisplayOffset();
+                if (displayOffset != null) {
+                    poseStack.translate(displayOffset.x(), displayOffset.y(), displayOffset.z());
                 }
 
                 // 从渲染原点 (0, 24, 0) 移动到模型原点 (0, 0, 0)

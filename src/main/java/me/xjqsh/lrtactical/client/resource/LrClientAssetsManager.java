@@ -13,6 +13,7 @@ import me.xjqsh.lrtactical.compat.player_animator.PlayerAnimatorHelper;
 import me.xjqsh.lrtactical.init.CompatRegistry;
 import me.xjqsh.lrtactical.init.ModItems;
 import me.xjqsh.lrtactical.resource.serializer.ResourceLocationSerializer;
+import me.xjqsh.lrtactical.resource.serializer.Vector3fDeserializer;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +27,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import org.joml.Vector3f;
 
 import java.util.function.Consumer;
 
@@ -35,6 +37,7 @@ public enum LrClientAssetsManager {
     INSTANCE;
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocationSerializer())
+            .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
             .registerTypeAdapter(ItemTransforms.class, new ItemTransforms.Deserializer())
             .registerTypeAdapter(ItemTransform.class, new ItemTransform.Deserializer())
             .create();

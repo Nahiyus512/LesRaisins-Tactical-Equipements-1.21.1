@@ -80,4 +80,12 @@ public interface IConsumable extends ICustomItem {
     default Optional<ConsumableIndex> getConsumableIndex(ItemStack stack) {
         return LrTacticalAPI.getConsumableIndex(stack);
     }
+
+    /**
+     * 是否在物品碎裂时播放原版碎裂粒子。
+     * 返回 false 时，碎裂事件将被拦截（不播放碎裂粒子）。
+     */
+    default boolean spawnParticleOnBreak(ItemStack stack) {
+        return false;
+    }
 }

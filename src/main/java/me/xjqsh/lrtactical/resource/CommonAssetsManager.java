@@ -20,6 +20,7 @@ import me.xjqsh.lrtactical.resource.manager.MeleeIndexManager;
 import me.xjqsh.lrtactical.resource.manager.ThrowableIndexManager;
 import me.xjqsh.lrtactical.resource.serializer.ParticleOptionsDeserializer;
 import me.xjqsh.lrtactical.resource.serializer.ResourceLocationSerializer;
+import me.xjqsh.lrtactical.resource.serializer.Vector3fDeserializer;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -28,6 +29,7 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.Map;
@@ -38,6 +40,7 @@ public class CommonAssetsManager implements ICommonResourceProvider {
 
     public static Gson GSON = new GsonBuilder()
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocationSerializer())
+            .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
             .registerTypeAdapter(ConsumableData.RemoveEffectSelector.class, new ConsumableData.RemoveEffectSelector.Deserializer())
             .registerTypeAdapter(CombatData.class, new CombatData.Deserializer())
             .registerTypeAdapter(ITargetFilter.class, new ITargetFilter.Deserializer())

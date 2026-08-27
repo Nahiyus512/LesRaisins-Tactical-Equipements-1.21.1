@@ -2,6 +2,7 @@ package me.xjqsh.lrtactical.entity;
 
 import me.xjqsh.lrtactical.init.ModSounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -40,6 +41,8 @@ public class StickyGrenadeEntity extends GrenadeEntity {
     private static final EntityDataAccessor<Integer> STUCK_ENTITY_ID = SynchedEntityData.defineId(StickyGrenadeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Rotations> STUCK_OFFSET = SynchedEntityData.defineId(StickyGrenadeEntity.class, EntityDataSerializers.ROTATIONS);
     private static final EntityDataAccessor<Rotations> STUCK_ROTATION = SynchedEntityData.defineId(StickyGrenadeEntity.class, EntityDataSerializers.ROTATIONS);
+    /** 黏附的方块表面方向，使用 {@link Direction#get3DDataValue()} 编码；-1 表示未黏附在方块上（未黏附或黏附在实体上） */
+    private static final EntityDataAccessor<Byte> STUCK_FACE = SynchedEntityData.defineId(StickyGrenadeEntity.class, EntityDataSerializers.BYTE);
 
     @Nullable
     private BlockPos stuckBlockPos;
@@ -61,6 +64,7 @@ public class StickyGrenadeEntity extends GrenadeEntity {
         builder.define(STUCK_ENTITY_ID, -1);
         builder.define(STUCK_OFFSET, new Rotations(0, 0, 0));
         builder.define(STUCK_ROTATION, new Rotations(0, 0, 0));
+        builder.define(STUCK_FACE, (byte) -1);
     }
 
     @Override
@@ -126,6 +130,20 @@ public class StickyGrenadeEntity extends GrenadeEntity {
         super.updateRotation();
     }
 
+    /**
+     * 当前黏附的方块表面方向；仅当黏附在方块上时返回非 null（黏附在实体上或未黏附时返回 null）。
+     */
+    @Nullable
+    public Direction getStuckFace() {
+        byte value = this.entityData.get(STUCK_FACE);
+        return value >= 0 && value <= 5 ? Direction.from3DDataValue(value) : null;
+    }
+
+    @Nullable
+    public BlockPos getStuckBlockPos() {
+        return stuckBlockPos;
+    }
+
     private void alignToVec(Vec3 vec) {
         if (vec.lengthSqr() < 1.0E-7D) return;
         Vec3 normalized = vec.normalize();
@@ -168,6 +186,7 @@ public class StickyGrenadeEntity extends GrenadeEntity {
     private void detach() {
         this.entityData.set(STICKED, false);
         this.entityData.set(STUCK_ENTITY_ID, -1);
+        this.entityData.set(STUCK_FACE, (byte) -1);
         this.setNoGravity(false);
         this.stuckBlockPos = null;
         this.stuckEntityUUID = null;
@@ -191,6 +210,7 @@ public class StickyGrenadeEntity extends GrenadeEntity {
                     ModSounds.GRENADE_BOUNCE.get(), SoundSource.AMBIENT, 2.0F, 1.0F);
             
             this.entityData.set(STICKED, true);
+            this.entityData.set(STUCK_FACE, (byte) blockResult.getDirection().get3DDataValue());
             this.setNoGravity(true);
             this.setDeltaMovement(Vec3.ZERO);
             this.setPos(result.getLocation().subtract(
@@ -212,6 +232,7 @@ public class StickyGrenadeEntity extends GrenadeEntity {
             entity.hurt(entity.damageSources().thrown(this, this.getOwner()), this.getHitDamage());
 
             this.entityData.set(STICKED, true);
+            this.entityData.set(STUCK_FACE, (byte) -1);
             this.setNoGravity(true);
             this.setDeltaMovement(result.getLocation().subtract(this.position()));
             

@@ -10,13 +10,14 @@ import com.tacz.guns.api.client.animation.statemachine.LuaStateMachineFactory;
 import com.tacz.guns.client.resource.ClientAssetsManager;
 import com.tacz.guns.client.resource.pojo.model.BedrockModelPOJO;
 import com.tacz.guns.client.resource.pojo.model.BedrockVersion;
-import me.xjqsh.lrtactical.api.animation.BaseAnimationStateContext;
+import me.xjqsh.lrtactical.api.animation.MeleeAnimationStateContext;
 import me.xjqsh.lrtactical.client.audio.ICustomSoundSupplier;
 import me.xjqsh.lrtactical.client.renderer.model.CustomBedrockModel;
 import me.xjqsh.lrtactical.compat.player_animator.ThirdPersonAnimationConfig;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import java.util.Map;
 import java.util.Objects;
@@ -24,10 +25,11 @@ import java.util.Objects;
 public class MeleeDisplayInstance implements ICustomSoundSupplier {
     private ResourceLocation id;
     private CustomBedrockModel model;
-    private LuaAnimationStateMachine<BaseAnimationStateContext> stateMachine;
+    private LuaAnimationStateMachine<MeleeAnimationStateContext> stateMachine;
     private ResourceLocation texture;
     private ResourceLocation slotTexture;
     private ItemTransforms transforms;
+    private Vector3f displayOffset;
     private Map<String, ResourceLocation> sounds;
     private ThirdPersonAnimationConfig thirdPersonAnimation;
 
@@ -41,7 +43,7 @@ public class MeleeDisplayInstance implements ICustomSoundSupplier {
         return model;
     }
 
-    public LuaAnimationStateMachine<BaseAnimationStateContext> getStateMachine() {
+    public LuaAnimationStateMachine<MeleeAnimationStateContext> getStateMachine() {
         return stateMachine;
     }
 
@@ -55,6 +57,10 @@ public class MeleeDisplayInstance implements ICustomSoundSupplier {
 
     public ItemTransforms getTransforms() {
         return transforms;
+    }
+
+    public Vector3f getDisplayOffset() {
+        return displayOffset;
     }
 
     public ThirdPersonAnimationConfig getThirdPersonAnimation() {
@@ -91,7 +97,7 @@ public class MeleeDisplayInstance implements ICustomSoundSupplier {
         var script = ClientAssetsManager.INSTANCE.getScript(pojo.stateMachineLocation);
         Preconditions.checkArgument(script != null, "no corresponding state machine found for " + pojo.modelLocation);
 
-        display.stateMachine = new LuaStateMachineFactory<BaseAnimationStateContext>()
+        display.stateMachine = new LuaStateMachineFactory<MeleeAnimationStateContext>()
                 .setController(controller)
                 .setLuaScripts(script)
                 .build();
@@ -102,6 +108,7 @@ public class MeleeDisplayInstance implements ICustomSoundSupplier {
         }
 
         display.transforms = Objects.requireNonNullElse(pojo.transforms, ItemTransforms.NO_TRANSFORMS);
+        display.displayOffset = Objects.requireNonNullElse(pojo.displayOffset, new Vector3f());
         display.sounds = Objects.requireNonNullElseGet(pojo.sounds, Maps::newHashMap);
         display.thirdPersonAnimation = pojo.thirdPersonAnimation;
 
@@ -121,6 +128,8 @@ public class MeleeDisplayInstance implements ICustomSoundSupplier {
             ResourceLocation slotTextureLocation,
             @SerializedName("transforms")
             ItemTransforms transforms,
+            @SerializedName("display_offset")
+            Vector3f displayOffset,
             @SerializedName("sounds")
             Map<String, ResourceLocation> sounds,
             @SerializedName("third_person_animation")
