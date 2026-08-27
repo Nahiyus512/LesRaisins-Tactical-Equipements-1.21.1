@@ -7,6 +7,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.Nullable;
@@ -43,9 +45,14 @@ public record SMeleeAnimationSync(
     }
 
     public static void handle(SMeleeAnimationSync message, IPayloadContext context) {
-        context.enqueueWork(() -> NeoForge.EVENT_BUS.post(
+        context.enqueueWork(() -> handle(message));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void handle(SMeleeAnimationSync message) {
+        NeoForge.EVENT_BUS.post(
                 new MeleePreAttackEvent(message.playerId, message.state, message.actionCount, message.animationId)
-        ));
+        );
     }
 
     @Override
