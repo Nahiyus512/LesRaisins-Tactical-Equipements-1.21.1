@@ -45,11 +45,11 @@ public record SMeleeAnimationSync(
     }
 
     public static void handle(SMeleeAnimationSync message, IPayloadContext context) {
-        context.enqueueWork(() -> handle(message));
+        context.enqueueWork(() -> handleClient(message));
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void handle(SMeleeAnimationSync message) {
+    private static void handleClient(SMeleeAnimationSync message) {
         NeoForge.EVENT_BUS.post(
                 new MeleePreAttackEvent(message.playerId, message.state, message.actionCount, message.animationId)
         );
